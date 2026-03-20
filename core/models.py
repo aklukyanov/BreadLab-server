@@ -3,8 +3,6 @@ from django.db import models
 class User(models.Model):
     """Пользователь бота (универсальный для всех каналов)"""
 
-    # Поле id у Django уже есть по умолчанию (автоинкремент)
-    # Для хранения ID из VK/Telegram нужно другое имя
     external_id = models.CharField(max_length=100, db_index=True, verbose_name="Social network ID")
 
     channel = models.CharField(
