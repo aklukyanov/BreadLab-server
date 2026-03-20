@@ -1,5 +1,6 @@
 from django.contrib import admin
 from .models import User
+from .models import Recipe
 
 
 @admin.register(User)
@@ -35,6 +36,23 @@ class UserAdmin(admin.ModelAdmin):
         }),
         ('Metadata', {
             'fields': ('registered_at', 'last_active'),
+            'classes': ('collapse',)
+        }),
+    )
+
+@admin.register(Recipe)
+class RecipeAdmin(admin.ModelAdmin):
+    list_display = ('id', 'user', 'hydration', 'created_at', 'updated_at')
+    list_filter = ('created_at', 'hydration')
+    search_fields = ('user__external_id', 'user__first_name', 'user__last_name')
+    readonly_fields = ('created_at', 'updated_at')
+
+    fieldsets = (
+        ('Recipe Data', {
+            'fields': ('user', 'recipe', 'dry_sum', 'wet_sum', 'hydration')
+        }),
+        ('Metadata', {
+            'fields': ('created_at', 'updated_at'),
             'classes': ('collapse',)
         }),
     )
