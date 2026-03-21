@@ -4,7 +4,7 @@ import json
 
 from core.models import User, Recipe
 from core.serializers import UserSerializer, RecipeSerializer
-from utils.calculations import convert_50_to_100, convert_100_to_50
+from utils.calculations import convert_50_to_100, convert_100_to_50, get_multiplication_result
 
 
 @csrf_exempt
@@ -84,7 +84,6 @@ def create_recipe(request):
     serializer = RecipeSerializer(recipe)
 
     return JsonResponse(serializer.data, status=201 if created else 200)
-
 
 
 def get_user_recipes(request, user_id):
@@ -172,6 +171,44 @@ def starter_calc(request):
     except json.JSONDecodeError:
         return JsonResponse({'error': 'Invalid JSON'}, status=400)
 
+@csrf_exempt
+def recipe_multiply(request):
+    # валидный запрос
+    '''{
+        "multiplier": 2,
+        "recipe": {
+            "status": "ok",
+            "data": {
+                "title": "Хлеб простой",
+                "groups": [
+                    {
+                        "name": "Тесто",
+                        "ingredients": [
+                            {"name": "мука пшеничная", "quantity": 500, "unit": "г"},
+                            {"name": "вода", "quantity": 350, "unit": "мл"},
+                            {"name": "соль", "quantity": 10, "unit": "г"},
+                            {"name": "дрожжи", "quantity": 5, "unit": "г"}
+                        ]
+                    }
+                ]
+            }
+        }
+    }'''
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Method not allowed'}, status=405)
+
+    try:
+        data = json.loads(request.body)
+        result=get_multiplication_result(
+            quantity_recipes=data['multiplier'],
+            recipe_dict=data['recipe']['data'])
+
+    except json.JSONDecodeError:
+        return JsonResponse({'error': 'Invalid JSON'}, status=400)
+    except KeyError as e:
+        return JsonResponse({'error': f'Missing required field:{e}'}, status=400)
+
+    return JsonResponse({'recipe':result}, status=200)
 
 
 

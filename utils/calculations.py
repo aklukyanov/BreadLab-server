@@ -40,3 +40,16 @@ def convert_100_to_50(starter_100: float, water_100: float, flour_100: float, st
         'flour_50': round(flour, 1),
         'water_to_add': round(water_to_add, 1)  # кол-во воды, которое нужно добавить при замесе
     }
+
+
+def get_multiplication_result(quantity_recipes, recipe_dict):
+    for group in recipe_dict['groups']:
+        for ingredient in group['ingredients']:
+            quantity = ingredient['quantity']
+            if quantity is not None:
+                result_quantity = round(float(quantity) * int(quantity_recipes), 1)
+                if result_quantity.is_integer():
+                    ingredient['quantity'] = int(result_quantity)
+                else:
+                    ingredient['quantity'] = result_quantity
+    return recipe_dict
