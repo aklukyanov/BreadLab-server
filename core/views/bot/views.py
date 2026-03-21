@@ -4,18 +4,19 @@ import json
 
 from core.models import User, Recipe
 from core.serializers import UserSerializer, RecipeSerializer
+from utils.calculations import convert_50_to_100, convert_100_to_50
 
 
 @csrf_exempt
 def create_user(request):
-    '''
+    """
     {
   "external_id": "12345",
   "channel": "vk",
   "username": "alex_baker",
   "first_name": "Алексей",
   "last_name": "Пекарев"
-}'''
+}"""
     if request.method != 'POST':
         return JsonResponse({'error': 'Method not allowed'}, status=405)
 
@@ -126,3 +127,61 @@ def delete_user(request, user_id):
         return JsonResponse({'error': 'User not found'}, status=404)
 
     return JsonResponse({'message': 'User deleted'}, status=200)
+
+
+@csrf_exempt
+def starter_calc(request):
+    """запрос {
+        "direction": "50to100",
+        "starter_50": 100,
+        "water_50": 50,
+        "flour_50": 50,
+        "starter_part": 1,
+        "water_part": 1,
+        "flour_part": 1
+    }"""
+
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Method not allowed'}, status=405)
+
+    try:
+        data=json.loads(request.body)
+        if data['direction']=='50to100':
+            result=convert_50_to_100(
+            starter_50=data['starter_50'],
+            water_50=data['water_50'],
+            flour_50=data['flour_50'],
+            starter_part=data['starter_part'],
+            water_part=data['water_part'],
+            flour_part=data['flour_part'])
+
+        elif data['direction']=='100to50':
+            result=convert_100_to_50(
+            starter_100=data['starter_100'],
+            water_100=data['water_100'],
+            flour_100=data['flour_100'],
+            starter_part=data['starter_part'],
+            water_part=data['water_part'],
+            flour_part=data['flour_part'])
+        else:
+            return JsonResponse({'error': 'Invalid direction'}, status=400)
+
+        return JsonResponse(result, status=200)
+    except KeyError as e:
+        return JsonResponse({'error': f'Missing required field:{e}'}, status=400)
+    except json.JSONDecodeError:
+        return JsonResponse({'error': 'Invalid JSON'}, status=400)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
