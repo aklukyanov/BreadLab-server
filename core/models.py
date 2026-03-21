@@ -1,4 +1,6 @@
 from django.db import models
+from django.db.models import ForeignKey
+
 
 class User(models.Model):
     """Пользователь бота (универсальный для всех каналов)"""
@@ -67,6 +69,9 @@ class Recipe(models.Model):
         verbose_name="User"
     )
 
+    #Название рецепта
+    title = models.CharField(max_length=255, blank=True)
+
     # JSON-данные рецепта
     recipe = models.JSONField(
         blank=True,
@@ -74,19 +79,14 @@ class Recipe(models.Model):
         help_text="Сырой JSON от Qwen"
     )
 
-    # Кешированные расчёты для гидратации
-    dry_sum = models.FloatField(
-        blank=True,
+    parent=ForeignKey(
+        'self',
+        on_delete=models.SET_NULL,
         null=True,
-        verbose_name="Dry sum",
-        help_text="Flour + other dry ingredients (grams)"
-    )
-    wet_sum = models.FloatField(
         blank=True,
-        null=True,
-        verbose_name="Liquid sum",
-        help_text="Water + oil + other liquids (grams)"
+        related_name='children'
     )
+
     hydration = models.FloatField(
         blank=True,
         null=True,
@@ -116,3 +116,4 @@ class Recipe(models.Model):
     def __str__(self):
         recipe_name = self.recipe.get('name', 'Unnamed') if self.recipe else 'Empty'
         return f"{recipe_name} ({self.user})"
+

@@ -42,10 +42,10 @@ class UserAdmin(admin.ModelAdmin):
 
 @admin.register(Recipe)
 class RecipeAdmin(admin.ModelAdmin):
-    list_display = ('id', 'user', 'hydration', 'created_at', 'updated_at')
+    list_display = ('id', 'user', 'title', 'parent', 'hydration', 'created_at', 'updated_at')
     list_filter = ('created_at', 'hydration')
     search_fields = ('user__external_id', 'user__first_name', 'user__last_name')
-    readonly_fields = ('created_at', 'updated_at')
+    readonly_fields = ('created_at', 'updated_at', 'parent')
 
     fieldsets = (
         ('Recipe Data', {
