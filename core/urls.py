@@ -1,8 +1,11 @@
 
 from django.urls import path
-from core.views.bot.views import create_user, create_recipe, get_user_recipes, delete_recipe, delete_user, starter_calc, \
-    recipe_multiply, update_recipe, get_uniq_recipe, get_recipe_children, get_recipe_parents, recognize_photo, \
-    recipe_edit, recipe_hydro_analyze
+
+from core.views.bot.LLM import recognize_photo, recipe_hydro_analyze, recipe_edit
+from core.views.bot.crud_recipes import get_user_recipes, create_recipe, get_uniq_recipe, update_recipe, delete_recipe, \
+    get_recipe_children, get_recipe_parents
+from core.views.bot.crud_users import create_user, delete_user
+from core.views.bot.options import starter_calc, recipe_multiply
 
 urlpatterns = [
     path('users/', create_user),
