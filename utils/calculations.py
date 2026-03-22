@@ -53,3 +53,24 @@ def get_multiplication_result(quantity_recipes, recipe_dict):
                 else:
                     ingredient['quantity'] = result_quantity
     return recipe_dict
+
+
+def hydro_calc(recipe):
+
+    dry_sum = 0
+    wet_sum = 0
+    for group in recipe['data']['groups']:
+        group_name = group['name'].lower()
+
+        if group_name == 'сухие':
+            for ingredient in group['ingredients']:
+                quantity = int(ingredient['quantity'])
+                dry_sum += quantity
+        elif group_name == 'жидкие':
+            for ingredient in group['ingredients']:
+                quantity = int(ingredient['quantity'])
+                wet_sum += quantity
+
+    hydro = round((wet_sum / dry_sum) * 100, 1)
+    return hydro, dry_sum, wet_sum
+
