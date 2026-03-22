@@ -42,6 +42,7 @@ def create_recipe(request):
     "валидный входящий json"
     '''{
 "user_id": 42,
+"parent_id":1,
 "recipe": {
     "status": "ok",
     "data": {
@@ -60,22 +61,33 @@ def create_recipe(request):
     try:
         data = json.loads(request.body)
         user_id = data.get('user_id')
+        parent_id = data.get('parent_id')
     except json.JSONDecodeError:
         return JsonResponse({'error': 'Invalid JSON'}, status=400)
+
+    if parent_id:
+        try:
+            parent = Recipe.objects.get(id=parent_id)
+            parents_list=parent.parents+[parent_id]
+        except Recipe.DoesNotExist:
+            return JsonResponse({'error': 'Parent recipe not found'}, status=404)
+    else:
+        parents_list=[]
 
     try:
         user=User.objects.get(id=user_id)  # проверяем существует ли пользователь в базе
     except User.DoesNotExist:
         return JsonResponse({'error': 'User not found'}, status=404)
+
     try:
         recipe_title=data['recipe']['data']['title']
-
         recipe, created = Recipe.objects.get_or_create(
-        name=recipe_title,
+        title=recipe_title,
         user=user,
         defaults={
         'recipe':data['recipe'],
-        'hydration':data['recipe']['data']['hydration']
+        'hydration':data['recipe']['data']['hydration'],
+        'parents':parents_list
         }
     )
     except KeyError:
@@ -106,9 +118,22 @@ def delete_recipe(request, recipe_id):
     if request.method != 'DELETE':
         return JsonResponse({'error': 'Method not allowed'}, status=405)
 
+    # удаляем id удаляемого рецепта из списков версий, где он есть
+    #
     try:
-        recipe=Recipe.objects.get(id=recipe_id)
-        recipe.delete()
+    #      ВЕРСИЯ ДЛЯ POSTGRESQL
+    #     linked_recipes=Recipe.objects.filter(parents__contains=[recipe_id])
+    #     for linked_recipe in linked_recipes:
+    #         linked_recipe.parents.remove(recipe_id)
+    #         linked_recipe.save()
+        #УНИВЕРСАЛЬНАЯ НО НЕ ТАКАЯ ПРОИЗВОДИТЕЛЬНАЯ ВЕРСИЯ
+        for recipe in Recipe.objects.all():
+            if recipe_id in recipe.parents:
+                recipe.parents.remove(recipe_id)
+                recipe.save()
+    # находим и удаляем сам рецепт
+        recipe_to_delete=Recipe.objects.get(id=recipe_id)
+        recipe_to_delete.delete()
     except Recipe.DoesNotExist:
         return JsonResponse({'error': 'Recipe not found'}, status=404)
 
@@ -209,7 +234,39 @@ def recipe_multiply(request):
         return JsonResponse({'error': f'Missing required field:{e}'}, status=400)
 
     return JsonResponse({'recipe':result}, status=200)
+@csrf_exempt
+def update_recipe(request, recipe_id):
+    if request.method != 'PATCH':
+        return JsonResponse({'error': 'Method not allowed'}, status=405)
 
+    try:
+        data = json.loads(request.body)
+    except json.JSONDecodeError:
+        return JsonResponse({'error': 'Invalid JSON'}, status=400)
+
+    try:
+        recipe=Recipe.objects.get(id=recipe_id)
+        recipe.recipe = data.get('recipe', recipe.recipe)
+        recipe.save()
+        serializer = RecipeSerializer(recipe)
+        return JsonResponse(serializer.data, status=200)
+
+    except Recipe.DoesNotExist:
+        return JsonResponse({'error': 'Recipe not found'}, status=404)
+    except json.JSONDecodeError:
+        return JsonResponse({'error': 'Invalid JSON'}, status=400)
+@csrf_exempt
+def get_uniq_recipe(request, recipe_id):
+    if request.method != 'GET':
+        return JsonResponse({'error': 'Method not allowed'}, status=405)
+
+    try:
+        recipe=Recipe.objects.get(id=recipe_id)
+        serializer = RecipeSerializer(recipe)
+        return JsonResponse(serializer.data, status=200)
+
+    except Recipe.DoesNotExist:
+        return JsonResponse({'error': 'Recipe not found'}, status=404)
 
 
 

@@ -79,13 +79,7 @@ class Recipe(models.Model):
         help_text="Сырой JSON от Qwen"
     )
 
-    parent=ForeignKey(
-        'self',
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name='children'
-    )
+    parents=models.JSONField(default=list, blank=True, verbose_name="Parents")
 
     hydration = models.FloatField(
         blank=True,
