@@ -12,10 +12,10 @@ def convert_50_to_100(starter_50: float, water_50: float, flour_50: float, start
     flour = part * flour_part
 
     return {
-        'total_weight_100': round(sourdough100, 1),
-        'starter_100': round(starter, 1),
-        'water_100': round(water, 1),
-        'flour_100': round(flour, 1),
+        'total_weight': round(sourdough100, 1),
+        'starter': round(starter, 1),
+        'water': round(water, 1),
+        'flour': round(flour, 1),
         'water_to_remove': round(water_to_remove, 1)  # кол-во воды, которое нужно убрать при замесе
     }
 
@@ -34,10 +34,10 @@ def convert_100_to_50(starter_100: float, water_100: float, flour_100: float, st
     flour = part * flour_part
 
     return {
-        'total_weight_50': round(sourdough50, 1),
-        'starter_50': round(starter, 1),
-        'water_50': round(water, 1),
-        'flour_50': round(flour, 1),
+        'total_weight': round(sourdough50, 1),
+        'starter': round(starter, 1),
+        'water': round(water, 1),
+        'flour': round(flour, 1),
         'water_to_add': round(water_to_add, 1)  # кол-во воды, которое нужно добавить при замесе
     }
 

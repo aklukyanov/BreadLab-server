@@ -2,13 +2,14 @@ import json
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from utils.calculations import convert_50_to_100, convert_100_to_50, get_multiplication_result, hydro_calc
+
 @csrf_exempt
 def starter_calc(request):
     """запрос {
         "direction": "50to100",
-        "starter_50": 100,
-        "water_50": 50,
-        "flour_50": 50,
+        "original_starter": 100,
+        "original_water": 50,
+        "original_flour": 50,
         "starter_part": 1,
         "water_part": 1,
         "flour_part": 1
@@ -21,18 +22,18 @@ def starter_calc(request):
         data=json.loads(request.body)
         if data['direction']=='50to100':
             result=convert_50_to_100(
-            starter_50=data['starter_50'],
-            water_50=data['water_50'],
-            flour_50=data['flour_50'],
+            starter_50=data['original_starter'],
+            water_50=data['original_water'],
+            flour_50=data['original_flour'],
             starter_part=data['starter_part'],
             water_part=data['water_part'],
             flour_part=data['flour_part'])
 
         elif data['direction']=='100to50':
             result=convert_100_to_50(
-            starter_100=data['starter_100'],
-            water_100=data['water_100'],
-            flour_100=data['flour_100'],
+            starter_100=data['original_starter'],
+            water_100=data['original_water'],
+            flour_100=data['original_flour'],
             starter_part=data['starter_part'],
             water_part=data['water_part'],
             flour_part=data['flour_part'])

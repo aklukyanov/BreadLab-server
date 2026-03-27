@@ -1,4 +1,6 @@
 import json
+
+from django.core.paginator import Paginator
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from core.models import User, Recipe
@@ -28,7 +30,7 @@ def create_recipe(request):
 #извлекаем из входящего json данные
     try:
         data = json.loads(request.body)
-        user_id = data.get('user_id')
+        external_id = data.get('user_id')
         parent_id = data.get('parent_id')
     except json.JSONDecodeError:
         return JsonResponse({'error': 'Invalid JSON'}, status=400)
@@ -43,7 +45,7 @@ def create_recipe(request):
         parents_list=[]
 
     try:
-        user=User.objects.get(id=user_id)  # проверяем существует ли пользователь в базе
+        user=User.objects.get(external_id=external_id)  # проверяем существует ли пользователь в базе
     except User.DoesNotExist:
         return JsonResponse({'error': 'User not found'}, status=404)
 
@@ -66,19 +68,31 @@ def create_recipe(request):
     return JsonResponse(serializer.data, status=201 if created else 200)
 
 
-def get_user_recipes(request, user_id):
+
+def get_user_recipes(request, external_id):
     #возвращает массив словарей с данными пользователя и рецептами
+    #hydration для гидратации!
     if request.method != 'GET':
         return JsonResponse({'error': 'Method not allowed'}, status=405)
 
     try:
-        user=User.objects.get(id=user_id)  # проверяем существует ли пользователь в базе
+         user = User.objects.get(external_id=external_id)  # проверяем существует ли пользователь в базе
     except User.DoesNotExist:
         return JsonResponse({'error': 'User not found'}, status=404)
 
-    recipes = Recipe.objects.filter(user_id=user_id).order_by('-created_at')
-    serializer = RecipeSerializer(recipes, many=True)
-    return JsonResponse(serializer.data, safe=False)
+    recipes = Recipe.objects.filter(user=user).order_by('-created_at')
+    paginator = Paginator(recipes, 4)
+    page = request.GET.get('page', 1)
+    recipes_page = paginator.get_page(page)
+
+    serializer = RecipeSerializer(recipes_page, many=True)
+    return JsonResponse({
+        'recipes': serializer.data,
+        'page': int(page),
+        'has_next': recipes_page.has_next(),
+        'has_prev': recipes_page.has_previous(),
+        'total_pages': paginator.num_pages
+    })
 
 @csrf_exempt
 def delete_recipe(request, recipe_id):

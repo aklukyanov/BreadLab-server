@@ -9,8 +9,8 @@ from core.views.bot.options import starter_calc, recipe_multiply
 
 urlpatterns = [
     path('users/', create_user),
-    path('users/<int:user_id>/', delete_user),
-    path('users/<int:user_id>/recipes/', get_user_recipes),
+    path('users/<int:user_id>/', delete_user), #пока не используется
+    path('users/<str:external_id>/recipes/', get_user_recipes),
 
     path('recipes/', create_recipe),
     path('recipes/<int:recipe_id>/', get_uniq_recipe),  # GET
