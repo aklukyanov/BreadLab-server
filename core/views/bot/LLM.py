@@ -7,6 +7,10 @@ from django.views.decorators.csrf import csrf_exempt
 from utils.client import cloud_client
 from utils.prompts import photo_recognize_prompt, recipe_hydro_analyze_prompt, recipe_edit_prompt
 
+
+
+
+
 @csrf_exempt
 def recognize_photo(request):
     if request.method != 'POST':
@@ -53,22 +57,37 @@ def recognize_photo(request):
         if tmp_path and os.path.exists(tmp_path):
              os.unlink(tmp_path)
 
+def extract_json(text):
+    """Извлекает JSON из текста, даже если есть пояснения"""
+    # Ищем первый { и последний }
+    start = text.find('{')
+    end = text.rfind('}')
+    if start != -1 and end != -1:
+        json_str = text[start:end+1]
+        try:
+            return json.loads(json_str)
+        except:
+            pass
+    return None
+
 @csrf_exempt
 def recipe_edit(request):
     if request.method != 'POST':
         return JsonResponse({'error': 'Method not allowed'}, status=405)
-
+    print(f"cloud_client: {cloud_client}")
     try:
         data = json.loads(request.body)
+        print(data)
         recipe = data.get('recipe')
         instruction = data.get('instruction')
+
     except json.JSONDecodeError:
         return JsonResponse({'error': 'Invalid JSON'}, status=400)
 
     if not recipe or not instruction:
         return JsonResponse({'error': 'recipe and instruction are required'}, status=400)
     try:
-        response = cloud_client.chat(
+        response=cloud_client.chat(
         model='qwen3.5:397b-cloud',  # облачная мультимодальная модель
         messages=[{
             'role': 'user',
@@ -77,11 +96,16 @@ def recipe_edit(request):
         options={
             'temperature': 0.1,
             'num_predict': 1024
-        }, think=False
-    )
+        }, 
+        think=False,
+        format='json'
 
-        model_answer_dict=json.loads(response['message']['content'])
-        return JsonResponse(model_answer_dict, safe=False)
+    )
+        print(response)
+        
+        model_answer_dict=extract_json(response['message']['content'])
+        print(f"🔵 4. JSON распарсен: {model_answer_dict}")
+        return JsonResponse({'recipe':model_answer_dict}, safe=False)
 
     except json.JSONDecodeError:
         return JsonResponse({'error': 'Invalid JSON from LLM'}, status=500)

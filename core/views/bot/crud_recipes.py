@@ -32,6 +32,7 @@ def create_recipe(request):
         data = json.loads(request.body)
         external_id = data.get('user_id')
         parent_id = data.get('parent_id')
+        print(parent_id)
     except json.JSONDecodeError:
         return JsonResponse({'error': 'Invalid JSON'}, status=400)
 
@@ -44,6 +45,8 @@ def create_recipe(request):
     else:
         parents_list=[]
 
+    print(f'parents_list {parents_list}')
+
     try:
         user=User.objects.get(external_id=external_id)  # проверяем существует ли пользователь в базе
     except User.DoesNotExist:
@@ -52,7 +55,7 @@ def create_recipe(request):
     try:
         recipe_title=data['recipe']['data']['title']
         recipe, created = Recipe.objects.get_or_create(
-        title=recipe_title,
+        title=recipe_title.upper(),
         user=user,
         defaults={
         'recipe':data['recipe'],
