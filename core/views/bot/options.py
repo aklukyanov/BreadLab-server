@@ -76,7 +76,8 @@ def recipe_multiply(request):
         data = json.loads(request.body)
         result=get_multiplication_result(
             quantity_recipes=data['multiplier'],
-            recipe_dict=data['recipe']['data'])
+            recipe_dict=data['recipe'])
+        
 
     except json.JSONDecodeError:
         return JsonResponse({'error': 'Invalid JSON'}, status=400)

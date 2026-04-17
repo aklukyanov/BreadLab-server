@@ -1,7 +1,7 @@
 
 from django.urls import path
 
-from core.views.bot.LLM import recognize_photo, recipe_hydro_analyze, recipe_edit
+from core.views.bot.LLM import recognize_photo, recipe_hydro_analyze, recipe_edit, recognize_text_recipe
 from core.views.bot.crud_recipes import get_user_recipes, create_recipe, get_uniq_recipe, update_recipe, delete_recipe, \
     get_recipe_children, get_recipe_parents
 from core.views.bot.crud_users import create_user, delete_user
@@ -22,6 +22,7 @@ urlpatterns = [
     path('starter_calc/', starter_calc),
     path('recipe_multiply/', recipe_multiply),
     path('recognize_photo/', recognize_photo),
+    path('recognize_text/', recognize_text_recipe),
     path('recipe_hydro_analyze/', recipe_hydro_analyze),
     path('recipe_edit/', recipe_edit)
 ]
