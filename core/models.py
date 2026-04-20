@@ -1,5 +1,5 @@
 from django.db import models
-from django.db.models import ForeignKey
+
 
 
 class User(models.Model):
@@ -60,6 +60,7 @@ class User(models.Model):
 
 class Recipe(models.Model):
     """Рецепт пользователя"""
+    id: int
 
     # Связь с пользователем
     user = models.ForeignKey(
