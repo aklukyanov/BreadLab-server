@@ -9,6 +9,21 @@ dependencies = [
     "djangorestframework>=3.17.0",
     "djangorestframework-stubs>=3.16.8",
     "ollama>=0.6.1",
+    "pytest>=9.0.3",
     "python-dotenv>=1.2.2",
     "requests>=2.32.5",
 ]
+
+[dependency-groups]
+dev = [
+    "pytest>=9.0.3",
+
+]
+
+[tool.pytest.ini_options]
+# Папка с тестами
+testpaths = ["tests"]
+norecursedirs = [".venv", "venv", ".git", "__pycache__", "node_modules"]
+addopts = [
+    "-v",                          # Подробный вывод
+    "--strict-markers"]

@@ -47,7 +47,7 @@ def get_multiplication_result(quantity_recipes, recipe_dict):
         for ingredient in group['ingredients']:
             amount = ingredient.get('amount', ingredient.get('quantity'))
             if amount is not None:
-                result = round(float(amount) * int(quantity_recipes), 1)
+                result = round(float(amount) * float(quantity_recipes), 1)
                 ingredient['amount'] = int(result) if result.is_integer() else result
     return recipe_dict
 

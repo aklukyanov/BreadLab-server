@@ -77,7 +77,7 @@ def recognize_photo(request):
             return JsonResponse({'error': 'Photo is required'}, status=400)
 
         response = cloud_client.chat(
-            model='qwen3.5:397b-cloud',
+            model='gemma3:27b-cloud',
             messages=[{
                 'role': 'user',
                 'content': photo_recognize_prompt,
@@ -88,13 +88,21 @@ def recognize_photo(request):
             format='json'
         )
 
-        model_answer_dict = json.loads(response['message']['content'])
+        model_answer = response['message']['content']
+        llm_client_logger.debug(f"LLM raw photo response: {model_answer[:200]}...")
+
+        model_answer_dict = extract_json(model_answer)
+
+        if not model_answer_dict:
+            llm_client_logger.error("Failed to parse LLM photo response as JSON")
+            return JsonResponse({'error': 'Invalid JSON from LLM'}, status=500)
+
         llm_client_logger.info(f"Processed photo recipe: {model_answer_dict.get('title', 'Unknown')}")
         return JsonResponse(model_answer_dict, safe=False)
 
     except json.JSONDecodeError:
-        llm_client_logger.error("Invalid JSON from LLM")
-        return JsonResponse({'error': 'Invalid JSON from LLM'}, status=500)
+        llm_client_logger.error("Invalid JSON in request body")
+        return JsonResponse({'error': 'Invalid JSON'}, status=400)
     except requests.exceptions.ConnectionError:
         llm_client_logger.error("LLM service unavailable (connection error)")
         return JsonResponse({'error': 'LLM service unavailable'}, status=503)
@@ -189,7 +197,7 @@ def recipe_hydro_analyze(request):
 
     try:
         response = cloud_client.chat(
-            model='qwen3.5:397b-cloud',
+            model='gemma3:27b-cloud',
             messages=[{
                 'role': 'user',
                 'content': f'{recipe_hydro_analyze_prompt}.\n Исходный рецепт:\n{recipe}'
@@ -198,7 +206,15 @@ def recipe_hydro_analyze(request):
             think=False
         )
 
-        model_answer_dict = json.loads(response['message']['content'])
+        model_answer = response['message']['content']
+        llm_client_logger.debug(f"LLM raw hydro response: {model_answer[:200]}...")
+
+        model_answer_dict = extract_json(model_answer)
+
+        if not model_answer_dict:
+            llm_client_logger.error("Failed to parse LLM hydro response as JSON")
+            return JsonResponse({'error': 'Invalid JSON from LLM'}, status=500)
+
         return JsonResponse(model_answer_dict, safe=False)
 
     except json.JSONDecodeError:
