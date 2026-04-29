@@ -1,0 +1,12 @@
+.idea
+.git
+.venv
+tests/
+
+.gitignore
+.dockerignore
+.env
+README.md
+LICENSE
+*.pyc
+*.log
