@@ -9,7 +9,7 @@ services:
     networks:
       - breadlab-net
 
-  db:
+  breadlab-db:
     image: postgres:15-alpine
     container_name: breadlab-postgres
     env_file:
