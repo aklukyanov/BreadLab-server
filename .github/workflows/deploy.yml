@@ -39,7 +39,7 @@ jobs:
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
-            cd ~/BreadLabProject/BreadLab_server
+            cd ~/BreadLabProject/BreadLab-server
             git pull origin main
             cat > .env <<EOF
             ollama_api=${{ secrets.OLLAMA_API }}
