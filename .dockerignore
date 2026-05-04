@@ -2,7 +2,6 @@
 .git
 .venv
 tests/
-
 .gitignore
 .dockerignore
 docker-compose.yml
