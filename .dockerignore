@@ -5,6 +5,7 @@ tests/
 
 .gitignore
 .dockerignore
+docker-compose.yml
 .env
 README.md
 LICENSE

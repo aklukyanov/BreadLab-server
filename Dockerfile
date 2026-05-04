@@ -11,5 +11,9 @@ RUN pip install --no-cache-dir uv && \
 # 3. Копируем всё остальное
 COPY . .
 
+# Добавляем .venv/bin в PATH
+ENV PATH="/app/.venv/bin:$PATH"
+
 # 4. Запускаем сервер
 CMD ["uv", "run", "python", "manage.py", "runserver", "0.0.0.0:8000"]
+
