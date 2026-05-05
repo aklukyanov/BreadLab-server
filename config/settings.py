@@ -27,7 +27,8 @@ SECRET_KEY = django_secret_key
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['breadlab-server']
+ALLOWED_HOSTS = ['breadlab-server',
+                 '82.202.159.19']
 
 
 # Application definition
