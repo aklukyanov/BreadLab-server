@@ -1,4 +1,4 @@
-FROM python:3.14-slim
+FROM python:3.14.0-slim
 WORKDIR /app
 
 # 1. Копируем файлы зависимостей (для кэширования)
