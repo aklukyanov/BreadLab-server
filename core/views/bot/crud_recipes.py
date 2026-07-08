@@ -293,7 +293,15 @@ def get_uniq_recipe(request, recipe_id):
         recipe = Recipe.objects.get(id=recipe_id)
         crud_recipes_logger.debug(f"Fetching recipe: id={recipe_id}")
         serializer = RecipeSerializer(recipe)
-        return JsonResponse(serializer.data, status=200)
+        data = serializer.data
+        if data['parents']:
+            parent_id = data['parents'][-1]
+            try:
+                parent = Recipe.objects.get(id=parent_id)
+                data['parent_title'] = parent.title
+            except Recipe.DoesNotExist:
+                pass
+        return JsonResponse(data, status=200)
     except Recipe.DoesNotExist:
         crud_recipes_logger.warning(f"Recipe not found: id={recipe_id}")
         return JsonResponse({'error': 'Recipe not found'}, status=404)

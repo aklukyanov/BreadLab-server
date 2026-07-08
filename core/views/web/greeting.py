@@ -81,6 +81,7 @@ def dashboard_view(request):
     return render(request, 'dashboard.html', {
         'user_data': user_data,
         'recipes': recipes,
+        'active_tab': 'recipes',
     })
 
 

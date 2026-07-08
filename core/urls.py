@@ -7,6 +7,7 @@ from core.views.bot.crud_recipes import get_user_recipes, create_recipe, get_uni
 from core.views.bot.crud_users import create_user, delete_user
 from core.views.bot.options import starter_calc, recipe_multiply
 from core.views.web.greeting import home, login_view, register_view, dashboard_view, logout_view, delete_recipe_web
+from core.views.web.calculators import starter_view, multiply_view
 
 urlpatterns = [
     path('users/', create_user),
@@ -27,6 +28,10 @@ urlpatterns = [
     path('recipe_hydro_analyze/', recipe_hydro_analyze),
     path('recipe_edit/', recipe_edit),
     path('recipe_check_exists/', check_recipe_exists),
+
+    # Calculators
+    path('dashboard/starter/', starter_view, name='dashboard_starter'),
+    path('dashboard/multiply/', multiply_view, name='dashboard_multiply'),
 
     # WEB
     path('', home, name='home'),

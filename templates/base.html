@@ -20,6 +20,10 @@
             --text-dark: #603D19;
         }
 
+        html {
+            overflow-y: scroll;
+        }
+
         body {
             background-color: var(--bg-main);
             color: var(--text-dark);
@@ -120,8 +124,22 @@
 <body>
     <!-- Навигация -->
     <nav class="navbar navbar-expand-lg">
-        <div class="container">
+        <div class="container position-relative">
             <a class="navbar-brand" href="/">BreadLab</a>
+
+            {% block user_info %}
+                {% if user_data %}
+                <div class="position-absolute start-50 translate-middle-x text-center" style="line-height:1.25;pointer-events:none;">
+                    <div style="font-weight:600;font-size:0.95rem;color:var(--text-dark);">
+                        {{ user_data.first_name|default:user_data.username }} {{ user_data.last_name|default:"" }}
+                    </div>
+                    <div style="font-size:0.8rem;opacity:0.85;color:var(--text-dark);white-space:nowrap;">
+                        Зарегистрирован: {{ user_data.registered_at|date:"d E Y" }} · {{ user_recipes_count }} рец.
+                    </div>
+                </div>
+                {% endif %}
+            {% endblock %}
+
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
