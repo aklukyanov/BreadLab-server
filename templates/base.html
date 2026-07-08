@@ -127,18 +127,23 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
-                    {% if user.is_authenticated %}
-                        <li class="nav-item">
-                            <a class="nav-link" href="/dashboard/">Личный кабинет</a>
-                        </li>
-                    {% else %}
-                        <li class="nav-item">
-                            <a class="nav-link" href="/login/">Войти</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="btn btn-primary btn-sm" href="/register/">Регистрация</a>
-                        </li>
-                    {% endif %}
+                    {% block nav_auth_buttons %}
+                        {% if user_data %}
+                            <li class="nav-item">
+                                <a class="nav-link" href="/dashboard/">Личный кабинет</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="/logout/">Выйти</a>
+                            </li>
+                        {% else %}
+                            <li class="nav-item">
+                                <a class="nav-link" href="/login/">Войти</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="btn btn-primary btn-sm" href="/register/">Регистрация</a>
+                            </li>
+                        {% endif %}
+                    {% endblock %}
                 </ul>
             </div>
         </div>
