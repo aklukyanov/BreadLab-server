@@ -102,6 +102,16 @@
     .text-danger {
         color: #dc3545 !important;
     }
+
+    .alert-danger {
+        background-color: #f8d7da;
+        border-color: #f5c6cb;
+        color: #721c24;
+        padding: 0.75rem 1rem;
+        border-radius: 12px;
+        margin-bottom: 1rem;
+        font-size: 0.95rem;
+    }
 </style>
 
 <!-- ЗАТЕМНЯЮЩИЙ ФОН -->
@@ -128,7 +138,7 @@
 </div>
 
 <!-- МОДАЛКА ВХОДА -->
-<div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
+<div class="modal fade {% if modal_open == 'login' %}show{% endif %}" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true" {% if modal_open == 'login' %}style="display: block;"{% endif %}>
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
@@ -136,6 +146,11 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
             </div>
             <div class="modal-body">
+                <!-- ВЫВОД ОШИБОК ВХОДА -->
+                {% if error and modal_open == 'login' %}
+                    <div class="alert alert-danger">{{ error }}</div>
+                {% endif %}
+
                 <form method="post" action="/login/">
                     {% csrf_token %}
                     <div class="mb-3">
@@ -157,7 +172,7 @@
 </div>
 
 <!-- МОДАЛКА РЕГИСТРАЦИИ -->
-<div class="modal fade" id="registerModal" tabindex="-1" aria-labelledby="registerModalLabel" aria-hidden="true">
+<div class="modal fade {% if modal_open == 'register' %}show{% endif %}" id="registerModal" tabindex="-1" aria-labelledby="registerModalLabel" aria-hidden="true" {% if modal_open == 'register' %}style="display: block;"{% endif %}>
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
@@ -165,6 +180,11 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
             </div>
             <div class="modal-body">
+                <!-- ВЫВОД ОШИБОК РЕГИСТРАЦИИ -->
+                {% if error and modal_open == 'register' %}
+                    <div class="alert alert-danger">{{ error }}</div>
+                {% endif %}
+
                 <form method="post" action="/register/">
                     {% csrf_token %}
                     <div class="mb-3">
@@ -185,4 +205,19 @@
         </div>
     </div>
 </div>
+
+<!-- Bootstrap JS (для модалок) -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // Автоматическое открытие модалки при ошибке
+    document.addEventListener('DOMContentLoaded', function() {
+        {% if modal_open == 'login' %}
+            var loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
+            loginModal.show();
+        {% elif modal_open == 'register' %}
+            var registerModal = new bootstrap.Modal(document.getElementById('registerModal'));
+            registerModal.show();
+        {% endif %}
+    });
+</script>
 {% endblock %}
