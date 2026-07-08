@@ -250,6 +250,7 @@ def update_recipe(request, recipe_id):
             crud_recipes_logger.warning(f"Update failed: title '{new_title}' already exists for user")
             return JsonResponse({'error': 'Recipe with this title already exists'}, status=400)
 
+        recipe.title = new_title.upper()
         recipe.save()
         crud_recipes_logger.info(f"Recipe updated: id={recipe_id}, new_title='{new_title}'")
         serializer = RecipeSerializer(recipe)
