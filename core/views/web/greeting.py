@@ -98,5 +98,10 @@ def delete_recipe_web(request, recipe_id):
     if not user_data:
         return redirect('home')
 
+    for recipe in Recipe.objects.all():
+        if recipe_id in recipe.parents:
+            recipe.parents.remove(recipe_id)
+            recipe.save()
+
     Recipe.objects.filter(id=recipe_id, user=user_data).delete()
     return redirect('dashboard')
