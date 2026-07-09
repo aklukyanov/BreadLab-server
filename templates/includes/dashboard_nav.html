@@ -1,0 +1,46 @@
+<style>
+    .dashboard-nav {
+        display: flex;
+        justify-content: center;
+        gap: 0.5rem;
+        margin-bottom: 2rem;
+        flex-wrap: wrap;
+    }
+
+    .dashboard-nav .tab-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        padding: 0.6rem 1.5rem;
+        border-radius: 50px;
+        font-weight: 600;
+        font-size: 0.95rem;
+        text-decoration: none;
+        color: var(--text-dark);
+        border: 1px solid var(--shadow-glass);
+        background: var(--bg-card);
+        transition: all 0.2s ease;
+    }
+
+    .dashboard-nav .tab-link:hover {
+        border-color: var(--crust);
+        background: var(--glass-light);
+        transform: translateY(-2px);
+    }
+
+    .dashboard-nav .tab-link.active {
+        background: var(--crust);
+        color: #fff;
+        border-color: var(--crust);
+    }
+
+    .dashboard-nav .tab-link.active:hover {
+        background: var(--detail-dark);
+    }
+</style>
+
+<nav class="dashboard-nav">
+    <a href="/dashboard/" class="tab-link {% if active_tab == 'recipes' %}active{% endif %}">Мои рецепты</a>
+    <a href="/dashboard/starter/" class="tab-link {% if active_tab == 'starter' %}active{% endif %}">Калькулятор закваски</a>
+    <a href="/dashboard/multiply/" class="tab-link {% if active_tab == 'multiply' %}active{% endif %}">Пересчёт пропорций</a>
+</nav>
