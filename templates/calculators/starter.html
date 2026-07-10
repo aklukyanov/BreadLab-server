@@ -1,0 +1,171 @@
+{% extends 'base.html' %}
+
+{% block title %}Калькулятор закваски{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        {% include 'includes/dashboard_nav.html' %}
+
+        <div class="card p-4">
+            <div class="card-body">
+                <form method="post" action="{% url 'dashboard_starter' %}">
+                    {% csrf_token %}
+
+                    <!-- Direction -->
+                    <div class="mb-4">
+                        <label class="form-label" style="font-weight:600;">Направление</label>
+                        <div class="d-flex gap-3" style="flex-wrap:wrap;">
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="direction" id="dir50to100" value="50to100" {% if result.direction_label == '50% → 100%' or not result %}checked{% endif %}>
+                                <label class="form-check-label" for="dir50to100">50% → 100%</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="direction" id="dir100to50" value="100to50" {% if result.direction_label == '100% → 50%' %}checked{% endif %}>
+                                <label class="form-check-label" for="dir100to50">100% → 50%</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Original amounts -->
+                    <div class="mb-4">
+                        <label class="form-label" style="font-weight:600;">Исходные количества (г)</label>
+                        <div class="row g-2">
+                            <div class="col-sm-4">
+                                <label class="form-label" style="font-size:0.85rem;color:var(--shadow-mid);">Закваска</label>
+                                <input type="number" step="any" class="form-control" name="starter" placeholder="г" value="{{ request.POST.starter|default:'' }}">
+                            </div>
+                            <div class="col-sm-4">
+                                <label class="form-label" style="font-size:0.85rem;color:var(--shadow-mid);">Вода</label>
+                                <input type="number" step="any" class="form-control" name="water" placeholder="г" value="{{ request.POST.water|default:'' }}">
+                            </div>
+                            <div class="col-sm-4">
+                                <label class="form-label" style="font-size:0.85rem;color:var(--shadow-mid);">Мука</label>
+                                <input type="number" step="any" class="form-control" name="flour" placeholder="г" value="{{ request.POST.flour|default:'' }}">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Proportions -->
+                    <div class="mb-4">
+                        <label class="form-label" style="font-weight:600;">Пропорции частей</label>
+                        <div class="row g-2">
+                            <div class="col-sm-4">
+                                <label class="form-label" style="font-size:0.85rem;color:var(--shadow-mid);">Закваска</label>
+                                <input type="number" step="1" class="form-control" name="starter_part" value="{{ request.POST.starter_part|default:'1' }}">
+                            </div>
+                            <div class="col-sm-4">
+                                <label class="form-label" style="font-size:0.85rem;color:var(--shadow-mid);">Вода</label>
+                                <input type="number" step="1" class="form-control" name="water_part" value="{{ request.POST.water_part|default:'1' }}">
+                            </div>
+                            <div class="col-sm-4">
+                                <label class="form-label" style="font-size:0.85rem;color:var(--shadow-mid);">Мука</label>
+                                <input type="number" step="1" class="form-control" name="flour_part" value="{{ request.POST.flour_part|default:'1' }}">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="text-center">
+                        <button type="submit" class="btn btn-primary btn-lg px-5">Рассчитать</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Result -->
+        {% if result %}
+        <div class="card mt-4">
+            <div class="card-body">
+                <div class="result-box">
+                    <div class="result-header">
+                        Опара {{ result.direction_label }}
+                    </div>
+
+                    <div class="result-row total">
+                        <span>Общий вес</span>
+                        <span class="value">{{ result.total_weight }} г</span>
+                    </div>
+
+                    <hr class="result-divider">
+
+                    <div class="result-row">
+                        <span>Закваска</span>
+                        <span class="value">{{ result.starter }} г</span>
+                    </div>
+                    <div class="result-row">
+                        <span>Вода</span>
+                        <span class="value">{{ result.water }} г</span>
+                    </div>
+                    <div class="result-row">
+                        <span>Мука</span>
+                        <span class="value">{{ result.flour }} г</span>
+                    </div>
+
+                    <hr class="result-divider">
+
+                    {% if result.water_to_remove %}
+                    <div class="result-row water-adj">
+                        <span>🧊 Убрать воды из рецептуры</span>
+                        <span class="value">{{ result.water_to_remove }} г</span>
+                    </div>
+                    {% endif %}
+                    {% if result.water_to_add %}
+                    <div class="result-row water-adj">
+                        <span>💧 Добавить воды в рецептуру</span>
+                        <span class="value">{{ result.water_to_add }} г</span>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <style>
+            .result-box {
+                padding: 1rem 1.5rem;
+            }
+            .result-header {
+                font-size: 1.1rem;
+                font-weight: 700;
+                color: var(--detail-dark);
+                text-align: center;
+                margin-bottom: 1rem;
+                padding-bottom: 0.75rem;
+                border-bottom: 2px solid var(--crust);
+            }
+            .result-row {
+                display: flex;
+                justify-content: space-between;
+                padding: 0.4rem 0;
+                font-size: 1rem;
+                color: var(--text-dark);
+            }
+            .result-row .value {
+                font-weight: 600;
+                color: var(--detail-dark);
+            }
+            .result-row.total {
+                font-size: 1.1rem;
+                font-weight: 700;
+            }
+            .result-row.total .value {
+                color: var(--crust);
+                font-size: 1.2rem;
+            }
+            .result-row.water-adj {
+                font-weight: 600;
+                color: var(--crust);
+            }
+            .result-row.water-adj .value {
+                color: var(--crust);
+            }
+            .result-divider {
+                border-color: var(--bread-crumb);
+                margin: 0.5rem 0;
+                opacity: 0.5;
+            }
+        </style>
+        {% endif %}
+
+    </div>
+</div>
+{% endblock %}

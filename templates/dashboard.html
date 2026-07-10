@@ -1,0 +1,921 @@
+{% extends 'base.html' %}
+
+{% block title %}Личный кабинет{% endblock %}
+
+{% block extra_css %}
+<style>
+    .recipe-card {
+        cursor: pointer;
+        transition: all 0.2s ease;
+        border: 1px solid var(--shadow-glass);
+    }
+
+    .recipe-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 24px rgba(96, 61, 25, 0.10);
+        border-color: var(--crust);
+    }
+
+    .recipe-card .card-title {
+        color: var(--text-dark);
+        font-weight: 600;
+        font-size: 1.15rem;
+        margin-bottom: 0.3rem;
+    }
+
+    .recipe-card .card-text {
+        color: var(--shadow-mid);
+        font-size: 0.85rem;
+    }
+
+    .recipe-card form {
+        margin-top: 0.75rem;
+    }
+
+    .recipe-card .btn-danger {
+        background-color: #dc3545;
+        border-color: #dc3545;
+        border-radius: 50px;
+        padding: 0.3rem 1.2rem;
+        font-size: 0.85rem;
+        font-weight: 500;
+        transition: all 0.2s ease;
+    }
+
+    .recipe-card .btn-danger:hover {
+        background-color: #bb2d3b;
+        border-color: #b02a37;
+        transform: translateY(-1px);
+    }
+
+    .modal-content {
+        background-color: var(--bg-card);
+        border: 1px solid var(--shadow-glass);
+        border-radius: 20px;
+    }
+
+    .modal-header {
+        border-bottom: 1px solid var(--shadow-glass);
+    }
+
+    .modal-title {
+        color: var(--text-dark);
+        font-weight: 700;
+    }
+
+    .modal-body {
+        color: var(--text-dark);
+        overflow-x: auto;
+    }
+
+    .modal-body h6 {
+        font-weight: 600;
+        color: var(--detail-dark);
+        margin-top: 1rem;
+        margin-bottom: 0.5rem;
+        padding-bottom: 0.25rem;
+        border-bottom: 1px solid var(--bread-crumb);
+    }
+
+    .modal-body h6:first-child {
+        margin-top: 0;
+    }
+
+    .ingredient-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 0.2rem 0;
+        font-size: 0.95rem;
+    }
+
+    .ingredient-row .name {
+        color: var(--text-dark);
+    }
+
+    .ingredient-row .amount {
+        color: var(--shadow-mid);
+        font-weight: 500;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 3rem 1rem;
+        color: var(--shadow-mid);
+    }
+
+    .empty-state p {
+        font-size: 1.1rem;
+    }
+
+    /* Tree view - SVG-based */
+    .tree-container {
+        display: flex;
+        justify-content: center;
+        position: relative;
+    }
+
+    .tree-wrapper {
+        display: inline-flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .tree-children {
+        display: flex;
+        justify-content: center;
+        gap: 1.5rem;
+        padding-top: 2rem;
+        position: relative;
+    }
+
+    .tree-svg {
+        position: absolute;
+        top: 0;
+        left: 0;
+        pointer-events: none;
+        overflow: visible;
+    }
+
+    .tree-node {
+        display: inline-block;
+        position: relative;
+        z-index: 1;
+        padding: 0.6rem 1.5rem;
+        border-radius: 50px;
+        font-size: 1rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        border: 1px solid var(--shadow-glass);
+        background: var(--bg-main);
+        color: var(--text-dark);
+        white-space: nowrap;
+    }
+
+    .tree-node:hover {
+        border-color: var(--crust);
+        background: var(--glass-light);
+        transform: translateY(-1px);
+    }
+
+    .tree-node.current {
+        background: var(--crust);
+        color: #fff;
+        border-color: var(--crust);
+        font-weight: 700;
+        font-size: 1.1rem;
+        padding: 0.7rem 1.7rem;
+    }
+
+    .tree-node.current:hover {
+        background: var(--detail-dark);
+    }
+
+    /* Spinner */
+    .spinner-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 3rem;
+    }
+
+    .spinner {
+        width: 40px;
+        height: 40px;
+        border: 4px solid var(--bread-crumb);
+        border-top-color: var(--crust);
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+
+    /* Modal transition */
+    .modal-fade-content {
+        animation: fadeSlideIn 0.25s ease-out;
+    }
+
+    @keyframes fadeSlideIn {
+        0% { opacity: 0; transform: translateY(8px); }
+        100% { opacity: 1; transform: translateY(0); }
+    }
+
+    .tree-hint {
+        font-size: 0.85rem;
+        color: var(--shadow-mid);
+        text-align: center;
+        margin-top: 1rem;
+    }
+
+    /* Edit mode */
+    .edit-group-card {
+        background: var(--bg-main);
+        border: 1px solid var(--shadow-glass);
+        border-radius: 16px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .edit-group-card .group-header {
+        display: flex;
+        gap: 0.5rem;
+        margin-bottom: 0.75rem;
+    }
+
+    .edit-ing-row {
+        display: flex;
+        gap: 0.5rem;
+        align-items: center;
+        margin-bottom: 0.4rem;
+    }
+
+    .edit-ing-row .ing-name {
+        flex: 2;
+    }
+
+    .edit-ing-row .ing-qty {
+        flex: 1;
+        min-width: 70px;
+    }
+
+    .edit-ing-row .ing-unit {
+        flex: 1.5;
+        min-width: 90px;
+    }
+
+    .edit-ing-row .btn-remove-ing {
+        flex: 0 0 32px;
+        height: 32px;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+    }
+
+    .edit-add-ing {
+        font-size: 0.85rem;
+        padding: 0.25rem 0.75rem;
+        border-radius: 50px;
+    }
+
+    .edit-add-group {
+        font-size: 0.9rem;
+        padding: 0.4rem 1rem;
+        border-radius: 50px;
+    }
+
+    .edit-input-uppercase {
+        text-transform: uppercase;
+    }
+
+    .edit-title-input {
+        font-size: 1.1rem;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+
+    .fab-btn {
+        position: fixed;
+        bottom: 2rem;
+        right: 2rem;
+        z-index: 1050;
+        border-radius: 50px;
+        padding: 0.8rem 1.5rem;
+        box-shadow: 0 4px 16px rgba(208, 126, 46, 0.3);
+        font-weight: 600;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+
+        {% include 'includes/dashboard_nav.html' %}
+
+        <!-- Recipes -->
+        {% if recipes %}
+            <div class="row justify-content-center">
+                {% for recipe in recipes %}
+                    <div class="col-12 mb-3">
+                        <div class="card recipe-card" onclick="openRecipeModal({{ recipe.id }})">
+                            <div class="card-body">
+                                <h5 class="card-title mb-1">{{ recipe.recipe.data.title|default:"Без названия" }}</h5>
+                                <p class="card-text mb-0">{{ recipe.created_at|date:"d E Y" }}</p>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <p>У вас пока нет рецептов</p>
+                <p style="font-size:0.9rem;">Общайтесь с ботом ВКонтакте, чтобы создавать рецепты</p>
+            </div>
+        {% endif %}
+
+    </div>
+</div>
+
+<button type="button" class="btn btn-primary fab-btn" onclick="createNewRecipe()">
+    + Новый рецепт
+</button>
+
+<!-- Recipe Modal -->
+<div class="modal fade" id="recipeModal" tabindex="-1" aria-labelledby="recipeModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="recipeModalLabel">Рецепт</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+            </div>
+            <div class="modal-body" id="recipeModalBody">
+                <div class="spinner-container">
+                    <div class="spinner"></div>
+                </div>
+            </div>
+            <form id="deleteForm" method="post" style="display:none;">{% csrf_token %}</form>
+            <div class="modal-footer">
+                <div id="viewFooterBtns">
+                    <button type="button" class="btn btn-outline-secondary" onclick="forkRecipe()">Создать на основе</button>
+                    <button type="button" class="btn btn-outline-secondary" id="treeBtn" onclick="toggleTree()">Дерево рецептов</button>
+                    <button type="button" class="btn btn-outline-secondary" id="editBtn" onclick="editRecipe()">Редактировать</button>
+                    <button type="button" class="btn btn-outline-secondary" onclick="deleteCurrentRecipe()">Удалить</button>
+                </div>
+                <div id="editFooterBtns" style="display:none;">
+                    <button type="button" class="btn btn-success" onclick="saveRecipe()">Сохранить</button>
+                    <button type="button" class="btn btn-outline-secondary" onclick="cancelEdit()">Отмена</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    let currentRecipeId = null;
+    let currentRecipeTitle = '';
+    let currentRecipeData = null;
+    let isNewRecipe = false;
+    let forkParentId = null;
+    let showingTree = false;
+    let showingEdit = false;
+
+    const UNITS = ['г.', 'мл.', 'кг.', 'л.', 'шт.', 'ч. л.', 'ст. л.', 'щеп.', 'стакан', 'пакетик', 'по вкусу'];
+
+    const modalEl = document.getElementById('recipeModal');
+    const modal = new bootstrap.Modal(modalEl);
+    const modalBody = document.getElementById('recipeModalBody');
+    const modalTitle = document.getElementById('recipeModalLabel');
+    const treeBtn = document.getElementById('treeBtn');
+    const editBtn = document.getElementById('editBtn');
+    const viewFooterBtns = document.getElementById('viewFooterBtns');
+    const editFooterBtns = document.getElementById('editFooterBtns');
+
+    function enterViewMode() {
+        showingEdit = false;
+        showingTree = false;
+        viewFooterBtns.style.display = '';
+        editFooterBtns.style.display = 'none';
+        treeBtn.textContent = 'Дерево рецептов';
+    }
+
+    function enterEditMode() {
+        showingEdit = true;
+        viewFooterBtns.style.display = 'none';
+        editFooterBtns.style.display = '';
+    }
+
+    function openRecipeModal(recipeId) {
+        currentRecipeId = recipeId;
+        enterViewMode();
+        loadRecipe(recipeId);
+        modal.show();
+    }
+
+    function loadRecipe(recipeId) {
+        showSpinner();
+        modalTitle.textContent = 'Загрузка…';
+
+        fetch('/api/recipes/' + recipeId + '/')
+            .then(r => {
+                if (!r.ok) throw new Error('Не удалось загрузить рецепт');
+                return r.json();
+            })
+            .then(data => {
+                currentRecipeId = data.id;
+                renderRecipe(data);
+            })
+            .catch(err => {
+                modalBody.innerHTML = '<div class="alert alert-danger">' + err.message + '</div>';
+                modalTitle.textContent = 'Ошибка';
+            });
+    }
+
+    function renderRecipe(data) {
+        currentRecipeData = data;
+        const recipe = data.recipe || {};
+        const recipeData = recipe.data || {};
+        const title = recipeData.title || 'Без названия';
+        const groups = recipeData.groups || [];
+        currentRecipeTitle = title;
+
+        modalTitle.textContent = title;
+
+        let html = '<div class="modal-fade-content">';
+
+        // Parents info
+        if (data.parents && data.parents.length > 0) {
+            const parentName = data.parent_title || '#' + data.parents[data.parents.length - 1];
+            html += '<p style="margin-bottom:0.75rem;"><span style="color:var(--shadow-mid);font-size:0.9rem;">Создан на основе рецепта "' + escapeHtml(parentName) + '"</span></p>';
+        }
+
+        // Ingredients groups
+        for (const group of groups) {
+            const ingredients = group.ingredients || [];
+            if (ingredients.length === 0) continue;
+
+            html += '<h6>' + (group.name || 'Ингредиенты') + '</h6>';
+            for (const ing of ingredients) {
+                const amount = ing.amount || ing.quantity || '';
+                const unit = ing.unit || '';
+                html += '<div class="ingredient-row">';
+                html += '<span class="name">' + (ing.name || '') + '</span>';
+                html += '<span class="amount">' + (amount ? amount + ' ' + unit : '') + '</span>';
+                html += '</div>';
+            }
+        }
+
+        if (groups.length === 0) {
+            html += '<p style="color:var(--shadow-mid);">Нет данных об ингредиентах</p>';
+        }
+
+        html += '</div>';
+        modalBody.innerHTML = html;
+    }
+
+    function toggleTree() {
+        if (showingEdit) {
+            cancelEdit();
+            return;
+        }
+        if (showingTree) {
+            loadRecipe(currentRecipeId);
+            showingTree = false;
+            treeBtn.textContent = 'Дерево рецептов';
+        } else {
+            loadTree(currentRecipeId);
+        }
+    }
+
+    function loadTree(recipeId) {
+        showSpinner();
+        treeBtn.textContent = 'Дерево рецептов';
+
+        const recipeIdToLoad = recipeId || currentRecipeId;
+
+        fetch('/api/recipe_tree/?recipe_id=' + recipeIdToLoad)
+            .then(r => {
+                if (!r.ok) throw new Error();
+                return r.json();
+            })
+            .then(data => {
+                renderTree(data);
+                showingTree = true;
+                treeBtn.textContent = 'Ингредиенты';
+            })
+            .catch(() => {
+                modalBody.innerHTML = '<div class="alert alert-danger">Не удалось загрузить дерево рецептов</div>';
+            });
+    }
+
+    function renderTree(data) {
+        modalTitle.textContent = 'Дерево рецептов';
+
+        const tree = data.tree;
+        const currentId = data.current_id;
+        const root = tree.find(n => n.id === data.root_id);
+        if (!root) {
+            modalBody.innerHTML = '<div class="alert alert-danger">Дерево рецептов пусто</div>';
+            return;
+        }
+
+        function getTitle(node) {
+            return (node.title || (node.recipe && node.recipe.data && node.recipe.data.title) || '#' + node.id);
+        }
+
+        function getChildren(nodeId) {
+            return tree.filter(n => {
+                const p = n.parents || [];
+                return p.length > 0 && p[p.length - 1] === nodeId;
+            });
+        }
+
+        function renderNode(node) {
+            const title = getTitle(node);
+            const isCurrent = node.id === currentId;
+            const children = getChildren(node.id);
+
+            let html = '<div class="tree-wrapper">';
+            if (isCurrent) {
+                html += '<div class="tree-node current">' + escapeHtml(title) + '</div>';
+            } else {
+                html += '<div class="tree-node" onclick="navigateToRecipe(' + node.id + ')">' + escapeHtml(title) + '</div>';
+            }
+            if (children.length > 0) {
+                html += '<div class="tree-children">';
+                for (const c of children) {
+                    html += renderNode(c);
+                }
+                html += '</div>';
+            }
+            html += '</div>';
+            return html;
+        }
+
+        let html = '<div class="modal-fade-content">';
+
+        if (tree.length <= 1) {
+            html += '<p style="text-align:center;color:var(--shadow-mid);padding:1rem 0;">У этого рецепта нет связей с другими рецептами</p>';
+        } else {
+            html += '<div class="tree-container">' + renderNode(root) + '</div>';
+        }
+
+        html += '<div class="tree-hint">Нажмите на рецепт в дереве, чтобы открыть его</div>';
+        html += '</div>';
+
+        modalBody.innerHTML = html;
+
+        if (tree.length > 1) {
+            requestAnimationFrame(drawTreeLines);
+        }
+    }
+
+    function drawTreeLines() {
+        const container = document.querySelector('.tree-container');
+        if (!container) return;
+
+        const containerRect = container.getBoundingClientRect();
+
+        const oldSvg = container.querySelector('.tree-svg');
+        if (oldSvg) oldSvg.remove();
+
+        const svgNs = 'http://www.w3.org/2000/svg';
+        const svg = document.createElementNS(svgNs, 'svg');
+        svg.classList.add('tree-svg');
+        svg.setAttribute('width', container.scrollWidth);
+        svg.setAttribute('height', container.scrollHeight);
+
+        const lineColor = '#C5A682';
+
+        function drawLine(x1, y1, x2, y2) {
+            const line = document.createElementNS(svgNs, 'line');
+            line.setAttribute('x1', x1);
+            line.setAttribute('y1', y1);
+            line.setAttribute('x2', x2);
+            line.setAttribute('y2', y2);
+            line.setAttribute('stroke', lineColor);
+            line.setAttribute('stroke-width', '2');
+            svg.appendChild(line);
+        }
+
+        function connect(parentEl, childrenContainer) {
+            const parentRect = parentEl.getBoundingClientRect();
+            const childrenRect = childrenContainer.getBoundingClientRect();
+
+            const parentCenterX = parentRect.left - containerRect.left + parentRect.width / 2;
+            const parentBottom = parentRect.bottom - containerRect.top;
+            const parentCenterY = parentRect.top - containerRect.top + parentRect.height / 2;
+
+            const childrenTop = childrenRect.top - containerRect.top;
+
+            const gapY = childrenTop - parentBottom;
+            const midY = childrenTop - Math.round(gapY / 2);
+
+            // Vertical from parent center to midpoint of gap
+            drawLine(parentCenterX, parentCenterY, parentCenterX, midY);
+
+            // Get child nodes
+            const childWrappers = childrenContainer.querySelectorAll(':scope > .tree-wrapper');
+            const childNodes = Array.from(childWrappers)
+                .map(w => w.querySelector(':scope > .tree-node'))
+                .filter(Boolean);
+
+            if (childNodes.length === 0) return;
+
+            if (childNodes.length > 1) {
+                // Horizontal bar at midpoint
+                const firstRect = childNodes[0].getBoundingClientRect();
+                const lastRect = childNodes[childNodes.length - 1].getBoundingClientRect();
+                const firstCenterX = firstRect.left - containerRect.left + firstRect.width / 2;
+                const lastCenterX = lastRect.left - containerRect.left + lastRect.width / 2;
+
+                drawLine(firstCenterX, midY, lastCenterX, midY);
+
+                // Vertical drops to each child center
+                for (const child of childNodes) {
+                    const childRect = child.getBoundingClientRect();
+                    const childCenterX = childRect.left - containerRect.left + childRect.width / 2;
+                    const childCenterY = childRect.top - containerRect.top + childRect.height / 2;
+                    drawLine(childCenterX, midY, childCenterX, childCenterY);
+                }
+            } else {
+                // Single child: direct vertical to child center
+                const childRect = childNodes[0].getBoundingClientRect();
+                const childCenterX = childRect.left - containerRect.left + childRect.width / 2;
+                const childCenterY = childRect.top - containerRect.top + childRect.height / 2;
+                drawLine(parentCenterX, midY, childCenterX, childCenterY);
+            }
+
+            // Recurse
+            for (const wrapper of childWrappers) {
+                const childNode = wrapper.querySelector(':scope > .tree-node');
+                const childChildren = wrapper.querySelector(':scope > .tree-children');
+                if (childNode && childChildren) {
+                    connect(childNode, childChildren);
+                }
+            }
+        }
+
+        const rootWrapper = container.querySelector(':scope > .tree-wrapper');
+        const rootNode = rootWrapper ? rootWrapper.querySelector(':scope > .tree-node') : null;
+        const rootChildren = rootWrapper ? rootWrapper.querySelector(':scope > .tree-children') : null;
+        if (rootNode && rootChildren) {
+            connect(rootNode, rootChildren);
+        }
+
+        container.appendChild(svg);
+    }
+
+    function navigateToRecipe(recipeId) {
+        enterViewMode();
+        loadRecipe(recipeId);
+    }
+
+    /* ── Edit mode ── */
+
+    function createNewRecipe() {
+        isNewRecipe = true;
+        forkParentId = null;
+        currentRecipeId = null;
+        currentRecipeTitle = '';
+        currentRecipeData = {
+            recipe: {
+                data: {
+                    title: '',
+                    groups: []
+                }
+            }
+        };
+        modalTitle.textContent = 'Новый рецепт';
+        if (showingTree) toggleTree();
+        enterEditMode();
+        renderEditForm(currentRecipeData);
+        modal.show();
+    }
+
+    function forkRecipe() {
+        if (!currentRecipeData) return;
+        isNewRecipe = true;
+        forkParentId = currentRecipeData.id;
+        currentRecipeId = null;
+        const dataCopy = JSON.parse(JSON.stringify(currentRecipeData));
+        const originalTitle = currentRecipeTitle || '';
+        dataCopy.title = '';
+        if (dataCopy.recipe && dataCopy.recipe.data) {
+            dataCopy.recipe.data.title = '';
+        }
+        currentRecipeData = dataCopy;
+        modalTitle.textContent = 'Новый рецепт на основе "' + originalTitle + '"';
+        if (showingTree) toggleTree();
+        enterEditMode();
+        renderEditForm(currentRecipeData);
+    }
+
+    function editRecipe() {
+        if (showingTree) {
+            toggleTree();
+        }
+        isNewRecipe = false;
+        enterEditMode();
+        renderEditForm(currentRecipeData);
+    }
+
+    function renderEditForm(data) {
+        const recipe = data.recipe || {};
+        const recipeData = recipe.data || {};
+        const title = recipeData.title || '';
+        const groups = recipeData.groups || [];
+
+        modalTitle.textContent = 'Редактирование';
+
+        let html = '<div class="modal-fade-content">';
+
+        html += '<div class="mb-3">';
+        html += '<label class="form-label" style="font-weight:600;">Название рецепта</label>';
+        html += '<input type="text" class="form-control edit-title-input" id="edit-title" value="' + escapeHtml(title) + '" oninput="this.value = this.value.toUpperCase()">';
+        html += '</div>';
+
+        html += '<div id="edit-groups">';
+        for (let gi = 0; gi < groups.length; gi++) {
+            html += renderEditGroup(gi, groups[gi]);
+        }
+        html += '</div>';
+
+        html += '<button type="button" class="btn btn-outline-secondary edit-add-group" onclick="addGroup()">+ Группа</button>';
+        html += '</div>';
+
+        modalBody.innerHTML = html;
+    }
+
+    function renderEditGroup(gi, group) {
+        const ingredients = group.ingredients || [];
+        let html = '<div class="edit-group-card" data-group-index="' + gi + '">';
+        html += '<div class="group-header">';
+        html += '<input type="text" class="form-control edit-group-name edit-input-uppercase" value="' + escapeHtml(group.name || '') + '" placeholder="Название группы" oninput="this.value = this.value.toUpperCase()">';
+        html += '<button type="button" class="btn btn-outline-danger btn-sm" onclick="removeGroup(' + gi + ')" style="border-radius:50%;width:36px;height:36px;padding:0;">×</button>';
+        html += '</div>';
+        html += '<div class="edit-ingredients">';
+        for (let ii = 0; ii < ingredients.length; ii++) {
+            html += renderEditIngredient(gi, ii, ingredients[ii]);
+        }
+        html += '</div>';
+        html += '<button type="button" class="btn btn-outline-primary edit-add-ing" onclick="addIngredient(' + gi + ')">+ Ингредиент</button>';
+        html += '</div>';
+        return html;
+    }
+
+    function renderEditIngredient(gi, ii, ing) {
+        const name = ing.name || '';
+        const qty = ing.amount || ing.quantity || '';
+        const unit = ing.unit || '';
+        let html = '<div class="edit-ing-row" data-gi="' + gi + '" data-ii="' + ii + '">';
+        html += '<input type="text" class="form-control form-control-sm ing-name edit-input-uppercase" value="' + escapeHtml(name) + '" placeholder="Ингредиент" oninput="this.value = this.value.toUpperCase()">';
+        html += '<input type="number" step="any" class="form-control form-control-sm ing-qty" value="' + escapeHtml(String(qty)) + '" placeholder="Кол-во">';
+        html += '<select class="form-select form-select-sm ing-unit">';
+        for (const u of UNITS) {
+            html += '<option value="' + u + '"' + (u === unit ? ' selected' : '') + '>' + u + '</option>';
+        }
+        html += '</select>';
+        html += '<button type="button" class="btn btn-outline-danger btn-sm btn-remove-ing" onclick="removeIngredient(' + gi + ',' + ii + ')">×</button>';
+        html += '</div>';
+        return html;
+    }
+
+    function addIngredient(gi) {
+        const groupCards = document.querySelectorAll('.edit-group-card');
+        const targetGroup = groupCards[gi];
+        if (!targetGroup) return;
+        const container = targetGroup.querySelector('.edit-ingredients');
+        const idx = container.querySelectorAll('.edit-ing-row').length;
+        const div = document.createElement('div');
+        div.innerHTML = renderEditIngredient(gi, idx, {});
+        container.appendChild(div.firstElementChild);
+    }
+
+    function removeIngredient(gi, ii) {
+        const row = document.querySelector('.edit-ing-row[data-gi="' + gi + '"][data-ii="' + ii + '"]');
+        if (row) row.remove();
+    }
+
+    function addGroup() {
+        const container = document.getElementById('edit-groups');
+        const count = container.querySelectorAll('.edit-group-card').length;
+        const div = document.createElement('div');
+        div.innerHTML = renderEditGroup(count, {});
+        container.appendChild(div.firstElementChild);
+    }
+
+    function removeGroup(gi) {
+        const card = document.querySelector('.edit-group-card[data-group-index="' + gi + '"]');
+        if (card) card.remove();
+    }
+
+    function saveRecipe() {
+        const title = document.getElementById('edit-title').value.trim().toUpperCase() || 'БЕЗ НАЗВАНИЯ';
+
+        const groupCards = document.querySelectorAll('.edit-group-card');
+        const groups = [];
+        for (const card of groupCards) {
+            const groupName = (card.querySelector('.edit-group-name').value || 'ИНГРЕДИЕНТЫ').toUpperCase();
+            const ingRows = card.querySelectorAll('.edit-ing-row');
+            const ingredients = [];
+            for (const row of ingRows) {
+                const name = row.querySelector('.ing-name').value.trim().toUpperCase();
+                if (!name) continue;
+                const qtyVal = row.querySelector('.ing-qty').value.trim();
+                const quantity = qtyVal ? parseFloat(qtyVal) : null;
+                const unit = row.querySelector('.ing-unit').value;
+                ingredients.push({ name, quantity, unit });
+            }
+            if (ingredients.length === 0) continue;
+            groups.push({ name: groupName, ingredients });
+        }
+
+        const recipeData = {
+            status: "ok",
+            data: {
+                title: title,
+                groups: groups
+            }
+        };
+
+        modalTitle.textContent = 'Сохранение…';
+        showSpinner();
+
+        if (isNewRecipe) {
+            const body = { recipe: recipeData };
+            if (forkParentId) {
+                body.parent_id = forkParentId;
+            }
+
+            fetch('/api/web/recipes/', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body)
+            })
+                .then(r => {
+                    if (!r.ok) return r.json().then(e => { throw new Error(e.error || 'Ошибка создания'); });
+                    return r.json();
+                })
+                .then(data => {
+                    modal.hide();
+                    location.reload();
+                })
+                .catch(err => {
+                    modalBody.innerHTML = '<div class="alert alert-danger">' + escapeHtml(err.message) + '</div>';
+                    modalTitle.textContent = 'Ошибка';
+                    enterViewMode();
+                });
+        } else {
+            const payload = JSON.stringify({ recipe: recipeData });
+
+            fetch('/api/recipes/' + currentRecipeId + '/update/', {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: payload
+            })
+                .then(r => {
+                    if (!r.ok) return r.json().then(e => { throw new Error(e.error || 'Ошибка сохранения'); });
+                    return r.json();
+                })
+                .then(data => {
+                    currentRecipeData = data;
+                    updateRecipeCard(currentRecipeId, title);
+                    enterViewMode();
+                    renderRecipe(data);
+                })
+                .catch(err => {
+                    modalBody.innerHTML = '<div class="alert alert-danger">' + escapeHtml(err.message) + '</div>';
+                    modalTitle.textContent = 'Ошибка';
+                    enterViewMode();
+                });
+        }
+    }
+
+    function cancelEdit() {
+        if (isNewRecipe) {
+            createNewRecipe();
+            return;
+        }
+        enterViewMode();
+        if (currentRecipeData) {
+            renderRecipe(currentRecipeData);
+        } else {
+            loadRecipe(currentRecipeId);
+        }
+    }
+
+    function deleteCurrentRecipe() {
+        const title = currentRecipeTitle || 'этот рецепт';
+        if (confirm('Удалить рецепт «' + title + '»?')) {
+            const form = document.getElementById('deleteForm');
+            form.action = '/dashboard/recipes/' + currentRecipeId + '/delete/';
+            form.submit();
+        }
+    }
+
+    function updateRecipeCard(recipeId, newTitle) {
+        const card = document.querySelector('.recipe-card[onclick="openRecipeModal(' + recipeId + ')"]');
+        if (card) {
+            const titleEl = card.querySelector('.card-title');
+            if (titleEl) titleEl.textContent = newTitle;
+        }
+    }
+
+    function showSpinner() {
+        modalBody.innerHTML = '<div class="spinner-container"><div class="spinner"></div></div>';
+    }
+
+    function escapeHtml(str) {
+        if (!str) return '';
+        const div = document.createElement('div');
+        div.textContent = str;
+        return div.innerHTML;
+    }
+</script>
+{% endblock %}

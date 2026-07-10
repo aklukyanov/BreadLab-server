@@ -1,0 +1,226 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Главная{% endblock %}
+
+{% block nav_auth_buttons %}{% endblock %}
+{% block user_info %}{% endblock %}
+
+{% block content %}
+<style>
+    /* КОНТЕЙНЕР ДЛЯ ЛОГОТИПА */
+    .logo-wrapper {
+        position: relative;
+        display: inline-block;
+        width: 500px;
+        max-width: 100%;
+        margin: 0 auto;
+    }
+
+    /* ОСНОВНОЙ ЛОГОТИП */
+    #mainLogo {
+        display: block;
+        width: 100%;
+        height: auto;
+        transform: scale(1.3);
+        transform-origin: center;
+        animation: zoomOut 0.6s ease-in-out forwards;
+    }
+
+    @keyframes zoomOut {
+        0% { transform: scale(1.3); }
+        100% { transform: scale(1); }
+    }
+
+    /* ЗАТЕМНЯЮЩИЙ ФОН */
+    .intro-bg {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background-color: var(--bg-main);
+        z-index: 9998;
+        animation: fadeBg 0.6s ease-in-out forwards;
+        pointer-events: none;
+    }
+
+    @keyframes fadeBg {
+        0% { opacity: 1; }
+        100% { opacity: 0; visibility: hidden; }
+    }
+
+    /* КНОПКИ */
+    .buttons-anim {
+        opacity: 0;
+        animation: buttonsUp 0.4s ease-out 0.4s forwards;
+    }
+
+    @keyframes buttonsUp {
+        0% { opacity: 0; transform: translateY(12px); }
+        100% { opacity: 1; transform: translateY(0); }
+    }
+
+    .navbar {
+        animation: navFade 0.3s ease-out 0.4s forwards;
+        opacity: 0;
+    }
+
+    @keyframes navFade {
+        0% { opacity: 0; transform: translateY(-5px); }
+        100% { opacity: 1; transform: translateY(0); }
+    }
+
+    .main-content {
+        min-height: 70vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    /* Убираем лишний отступ у кнопок */
+    .buttons-anim {
+        margin-top: 0.5rem !important;
+    }
+
+    /* Стили для модалок */
+    .modal-content {
+        background-color: var(--bg-card);
+        border: 1px solid var(--shadow-glass);
+        border-radius: 20px;
+    }
+
+    .modal-header {
+        border-bottom: 1px solid var(--shadow-glass);
+    }
+
+    .modal-title {
+        color: var(--text-dark);
+    }
+
+    .btn-close {
+        filter: invert(1);
+    }
+
+    .text-danger {
+        color: #dc3545 !important;
+    }
+
+    .alert-danger {
+        background-color: #f8d7da;
+        border-color: #f5c6cb;
+        color: #721c24;
+        padding: 0.75rem 1rem;
+        border-radius: 12px;
+        margin-bottom: 1rem;
+        font-size: 0.95rem;
+    }
+</style>
+
+<!-- ЗАТЕМНЯЮЩИЙ ФОН -->
+<div class="intro-bg"></div>
+
+<!-- ОСНОВНОЙ КОНТЕНТ -->
+<div class="main-content">
+    <div class="text-center">
+        <!-- ЛОГОТИП -->
+        <div class="logo-wrapper">
+            <img src="{% static 'images/breadlab_logo.jpg' %}" alt="BreadLab" id="mainLogo">
+        </div>
+
+        <!-- КНОПКИ -->
+        <div class="d-grid gap-3 d-sm-flex justify-content-sm-center buttons-anim">
+            <button type="button" class="btn btn-primary btn-lg px-5" data-bs-toggle="modal" data-bs-target="#loginModal">
+                Войти
+            </button>
+            <button type="button" class="btn btn-outline-secondary btn-lg px-5" data-bs-toggle="modal" data-bs-target="#registerModal">
+                Регистрация
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- МОДАЛКА ВХОДА -->
+<div class="modal fade {% if modal_open == 'login' %}show{% endif %}" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true" {% if modal_open == 'login' %}style="display: block;"{% endif %}>
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="loginModalLabel">Вход</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+            </div>
+            <div class="modal-body">
+                <!-- ВЫВОД ОШИБОК ВХОДА -->
+                {% if error and modal_open == 'login' %}
+                    <div class="alert alert-danger">{{ error }}</div>
+                {% endif %}
+
+                <form method="post" action="/login/">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="login_vk_id" class="form-label">VK ID <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="login_vk_id" name="vk_id" placeholder="Введите ваш VK ID" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="login_password" class="form-label">Пароль <span class="text-danger">*</span></label>
+                        <input type="password" class="form-control" id="login_password" name="password" placeholder="Введите пароль" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">Войти</button>
+                </form>
+                <p class="text-center mt-3" style="color: var(--shadow-mid);">
+                    Нет аккаунта? <a href="#" style="color: var(--crust);" data-bs-dismiss="modal" data-bs-toggle="modal" data-bs-target="#registerModal">Зарегистрироваться</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- МОДАЛКА РЕГИСТРАЦИИ -->
+<div class="modal fade {% if modal_open == 'register' %}show{% endif %}" id="registerModal" tabindex="-1" aria-labelledby="registerModalLabel" aria-hidden="true" {% if modal_open == 'register' %}style="display: block;"{% endif %}>
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="registerModalLabel">Регистрация</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+            </div>
+            <div class="modal-body">
+                <!-- ВЫВОД ОШИБОК РЕГИСТРАЦИИ -->
+                {% if error and modal_open == 'register' %}
+                    <div class="alert alert-danger">{{ error }}</div>
+                {% endif %}
+
+                <form method="post" action="/register/">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="register_vk_id" class="form-label">VK ID <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="register_vk_id" name="vk_id" placeholder="Введите ваш VK ID" required>
+                        <small class="text-muted">Должен совпадать с ID, указанным при общении с ботом</small>
+                    </div>
+                    <div class="mb-3">
+                        <label for="register_password" class="form-label">Пароль <span class="text-danger">*</span></label>
+                        <input type="password" class="form-control" id="register_password" name="password" placeholder="Придумайте пароль" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">Зарегистрироваться</button>
+                </form>
+                <p class="text-center mt-3" style="color: var(--shadow-mid);">
+                    Уже есть аккаунт? <a href="#" style="color: var(--crust);" data-bs-dismiss="modal" data-bs-toggle="modal" data-bs-target="#loginModal">Войти</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Bootstrap JS (для модалок) -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // Автоматическое открытие модалки при ошибке
+    document.addEventListener('DOMContentLoaded', function() {
+        {% if modal_open == 'login' %}
+            var loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
+            loginModal.show();
+        {% elif modal_open == 'register' %}
+            var registerModal = new bootstrap.Modal(document.getElementById('registerModal'));
+            registerModal.show();
+        {% endif %}
+    });
+</script>
+{% endblock %}

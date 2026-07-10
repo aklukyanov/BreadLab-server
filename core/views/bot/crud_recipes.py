@@ -1,5 +1,6 @@
 import json
 from django.core.paginator import Paginator
+from django.db.models import F
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from core.models import User, Recipe
@@ -250,6 +251,7 @@ def update_recipe(request, recipe_id):
             crud_recipes_logger.warning(f"Update failed: title '{new_title}' already exists for user")
             return JsonResponse({'error': 'Recipe with this title already exists'}, status=400)
 
+        recipe.title = new_title.upper()
         recipe.save()
         crud_recipes_logger.info(f"Recipe updated: id={recipe_id}, new_title='{new_title}'")
         serializer = RecipeSerializer(recipe)
@@ -292,7 +294,15 @@ def get_uniq_recipe(request, recipe_id):
         recipe = Recipe.objects.get(id=recipe_id)
         crud_recipes_logger.debug(f"Fetching recipe: id={recipe_id}")
         serializer = RecipeSerializer(recipe)
-        return JsonResponse(serializer.data, status=200)
+        data = serializer.data
+        if data['parents']:
+            parent_id = data['parents'][-1]
+            try:
+                parent = Recipe.objects.get(id=parent_id)
+                data['parent_title'] = parent.title
+            except Recipe.DoesNotExist:
+                pass
+        return JsonResponse(data, status=200)
     except Recipe.DoesNotExist:
         crud_recipes_logger.warning(f"Recipe not found: id={recipe_id}")
         return JsonResponse({'error': 'Recipe not found'}, status=404)
@@ -353,9 +363,14 @@ def get_recipe_parents(request, recipe_id):
 
     try:
         recipe = Recipe.objects.get(id=recipe_id)
-        parents = Recipe.objects.filter(id__in=recipe.parents)
-        crud_recipes_logger.debug(f"Fetching parents for recipe id={recipe_id}, found {len(parents)} parents")
-        serializer = RecipeSerializer(parents, many=True)
+        parent_objects = []
+        for pid in recipe.parents:
+            try:
+                parent_objects.append(Recipe.objects.get(id=pid))
+            except Recipe.DoesNotExist:
+                continue
+        crud_recipes_logger.debug(f"Fetching parents for recipe id={recipe_id}, found {len(parent_objects)} parents")
+        serializer = RecipeSerializer(parent_objects, many=True)
         return JsonResponse(serializer.data, safe=False, status=200)
     except Recipe.DoesNotExist:
         crud_recipes_logger.warning(f"Recipe not found for parents: id={recipe_id}")
@@ -390,3 +405,45 @@ def check_recipe_exists(request):
     exists = Recipe.objects.filter(user__external_id=user_id, title=title).exists()
     crud_recipes_logger.debug(f"Check recipe exists: user_id={user_id}, title='{title}', exists={exists}")
     return JsonResponse({'exists': exists})
+
+
+@csrf_exempt
+def get_recipe_tree(request):
+    if request.method != 'GET':
+        return JsonResponse({'error': 'Method not allowed'}, status=405)
+
+    query_recipe_id = request.GET.get('recipe_id')
+    if not query_recipe_id:
+        return JsonResponse({'error': 'recipe_id required'}, status=400)
+
+    try:
+        recipe = Recipe.objects.get(id=query_recipe_id)
+    except Recipe.DoesNotExist:
+        return JsonResponse({'error': 'Recipe not found'}, status=404)
+
+    # Определяем корень дерева
+    root_id = recipe.parents[0] if recipe.parents else recipe.id
+
+    # Собираем все рецепты дерева
+    all_recipes = Recipe.objects.all()
+    tree_recipes = []
+    for r in all_recipes:
+        if r.id == root_id:
+            tree_recipes.append(r)
+        elif r.parents and len(r.parents) > 0 and r.parents[0] == root_id:
+            tree_recipes.append(r)
+
+    serializer = RecipeSerializer(tree_recipes, many=True)
+    return JsonResponse({
+        'root_id': root_id,
+        'current_id': int(query_recipe_id),
+        'tree': serializer.data,
+    }, status=200)
+
+
+
+
+
+
+
+

@@ -29,6 +29,7 @@ class User(models.Model):
         null=True,
         verbose_name="Gender"
     )
+    password = models.CharField(max_length=128, blank=True, null=True, verbose_name="Password")
 
     # Платформы (откуда заходил)
     platforms = models.JSONField(default=list, blank=True, verbose_name="Platforms")
