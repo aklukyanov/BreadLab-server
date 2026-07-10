@@ -42,14 +42,18 @@ def convert_100_to_50(starter_100: float, water_100: float, flour_100: float, st
     }
 
 
+import copy
+
 def get_multiplication_result(quantity_recipes, recipe_dict):
-    for group in recipe_dict['groups']:
+    result = copy.deepcopy(recipe_dict)
+    for group in result['groups']:
         for ingredient in group['ingredients']:
             amount = ingredient.get('amount', ingredient.get('quantity'))
             if amount is not None:
-                result = round(float(amount) * float(quantity_recipes), 1)
-                ingredient['amount'] = int(result) if result.is_integer() else result
-    return recipe_dict
+                ingredient['original_amount'] = float(amount)
+                multiplied = round(float(amount) * float(quantity_recipes), 1)
+                ingredient['amount'] = int(multiplied) if multiplied.is_integer() else multiplied
+    return result
 
 
 def hydro_calc(recipe):

@@ -72,7 +72,7 @@
                                     {% endif %}
                                     <td>{{ ing.name }}</td>
                                     <td>
-                                        {% with orig_qty=ing.amount|default:ing.quantity %}
+                                        {% with orig_qty=ing.original_amount|default:0 %}
                                         {% if orig_qty %}
                                         <span class="old-value">{{ orig_qty }}</span> {{ ing.unit }}
                                         {% endif %}
