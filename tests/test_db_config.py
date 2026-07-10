@@ -28,7 +28,7 @@ def test_db_config_for_branch():
     else:
         assert sqlite_active, (
             "На ветке dev SQLite должен быть активен (раскомментирован), "
-            "а PostgreSQL закомментирован"
+            "а PostgreSQL  закомментирован"
         )
         assert not postgres_active, (
             "На ветке dev PostgreSQL должен быть закомментирован"
