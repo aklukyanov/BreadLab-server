@@ -32,6 +32,12 @@ def login_view(request):
             })
 
         user = User.objects.get(external_id=vk_id)
+        if not user.password:
+            return render(request, 'home.html', {
+                'error': 'Сначала зарегистрируйтесь',
+                'modal_open': 'register',
+                'user_data': None,
+            })
         if not check_password(password, user.password):
             return render(request, 'home.html', {
                 'error': 'Пароль не подходит',
