@@ -21,10 +21,10 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.14'
-      - name: Check database config for branch
+      - name: Check database_config for branch
         run: python tests/test_db_config.py
         env:
-          DB_MODE: ${{ github.ref_name == 'main' && 'prod' || 'dev' }}
+          DB_MODE: ${{ (github.base_ref || github.ref_name) == 'main' && 'prod' || 'dev' }}
       - name: Install uv and dependencies
         run: |
           pip install uv
