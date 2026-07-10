@@ -2,7 +2,12 @@ import os
 
 
 def test_db_config_for_branch():
-    expected = os.environ.get('DB_MODE', 'dev')
+    branch = (
+        os.environ.get('GITHUB_BASE_REF')
+        or os.environ.get('GITHUB_REF_NAME')
+        or 'dev'
+    )
+    expected = 'prod' if branch == 'main' else 'dev'
 
     with open('config/settings.py') as f:
         lines = f.readlines()
