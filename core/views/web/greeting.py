@@ -19,8 +19,6 @@ def home(request):
 
 
 def login_view(request):
-    if _get_web_user(request):
-        return redirect('dashboard')
 
     if request.method == 'POST':
         vk_id = request.POST.get('vk_id')
