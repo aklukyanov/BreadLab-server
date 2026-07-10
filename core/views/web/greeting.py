@@ -1,9 +1,10 @@
 from django.shortcuts import render, redirect
+from django.views.decorators.csrf import csrf_exempt
 
 from core.models import User, Recipe
 from django.contrib.auth.hashers import make_password, check_password
 
-
+@csrf_exempt
 def _get_web_user(request):
     user_id = request.session.get('user_id')
     if user_id:
@@ -13,11 +14,11 @@ def _get_web_user(request):
             request.session.flush()
     return None
 
-
+@csrf_exempt
 def home(request):
     return render(request, 'home.html', {'user_data': _get_web_user(request)})
 
-
+@csrf_exempt
 def login_view(request):
 
     if request.method == 'POST':
@@ -50,7 +51,7 @@ def login_view(request):
 
     return render(request, 'auth/login.html')
 
-
+@csrf_exempt
 def register_view(request):
     if _get_web_user(request):
         return redirect('dashboard')
@@ -75,7 +76,7 @@ def register_view(request):
 
     return render(request, 'auth/register.html')
 
-
+@csrf_exempt
 def dashboard_view(request):
     user_data = _get_web_user(request)
     if not user_data:
@@ -88,12 +89,12 @@ def dashboard_view(request):
         'active_tab': 'recipes',
     })
 
-
+@csrf_exempt
 def logout_view(request):
     request.session.flush()
     return redirect('home')
 
-
+@csrf_exempt
 def delete_recipe_web(request, recipe_id):
     if request.method != 'POST':
         return redirect('dashboard')
