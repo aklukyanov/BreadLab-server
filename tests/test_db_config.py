@@ -2,7 +2,12 @@ import os
 
 
 def test_db_config_for_branch():
-    expected = os.environ.get('DB_MODE', 'dev')
+    branch = (
+        os.environ.get('GITHUB_BASE_REF')
+        or os.environ.get('GITHUB_REF_NAME')
+        or 'dev'
+    )
+    expected = 'prod' if branch == 'main' else 'dev'
 
     with open('config/settings.py') as f:
         lines = f.readlines()
@@ -28,7 +33,7 @@ def test_db_config_for_branch():
     else:
         assert sqlite_active, (
             "На ветке dev SQLite должен быть активен (раскомментирован), "
-            "а PostgreSQL  закомментирован"
+            "а PostgreSQL закомментирован"
         )
         assert not postgres_active, (
             "На ветке dev PostgreSQL должен быть закомментирован"
