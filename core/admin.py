@@ -14,6 +14,7 @@ class UserAdmin(admin.ModelAdmin):
         'first_name',
         'last_name',
         'username',
+        'password',
         'registered_at',
         'last_active'
     )

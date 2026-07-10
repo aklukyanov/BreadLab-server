@@ -1,0 +1,151 @@
+{% extends 'base.html' %}
+
+{% block title %}Пересчёт пропорций{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        {% include 'includes/dashboard_nav.html' %}
+
+        <div class="card p-4">
+            <div class="card-body">
+                {% if recipes %}
+                <form method="post" action="{% url 'dashboard_multiply' %}">
+                    {% csrf_token %}
+
+                    <div class="mb-4">
+                        <label class="form-label" style="font-weight:600;">Рецепт</label>
+                        <select class="form-select" name="recipe_id" required>
+                            <option value="">— Выберите рецепт —</option>
+                            {% for r in recipes %}
+                            <option value="{{ r.id }}" {% if result.recipe.id == r.id %}selected{% endif %}>
+                                {{ r.recipe.data.title|default:"Без названия" }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label" style="font-weight:600;">Множитель</label>
+                        <input type="number" step="0.1" class="form-control" name="multiplier" placeholder="Например, 2 — для двух буханок" value="{{ request.POST.multiplier|default:'' }}" required>
+                    </div>
+
+                    <div class="text-center">
+                        <button type="submit" class="btn btn-primary btn-lg px-5">Рассчитать</button>
+                    </div>
+                </form>
+                {% else %}
+                <div class="empty-state">
+                    <p>У вас ещё нет рецептов</p>
+                    <p style="font-size:0.9rem;">Сначала создайте рецепты через бота ВКонтакте</p>
+                    <a href="/dashboard/" class="btn btn-primary">📋 Перейти к рецептам</a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Result -->
+        {% if result %}
+        <div class="card mt-4">
+            <div class="card-body">
+                <div class="mult-result">
+                    <div class="mult-header">
+                        {{ result.recipe.recipe.data.title|default:"Без названия" }} × {{ result.multiplier }}
+                    </div>
+
+                    <div class="mult-table-wrap">
+                        <table class="mult-table">
+                            <thead>
+                                <tr>
+                                    <th style="width:18%;">Группа</th>
+                                    <th style="width:32%;">Ингредиент</th>
+                                    <th style="width:25%;">Было</th>
+                                    <th style="width:25%;">Стало</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for group in result.multiplied_data.groups %}
+                                {% for ing in group.ingredients %}
+                                <tr>
+                                    {% if forloop.first %}
+                                    <td rowspan="{{ group.ingredients|length }}" style="vertical-align:middle;font-weight:600;">{{ group.name }}</td>
+                                    {% endif %}
+                                    <td>{{ ing.name }}</td>
+                                    <td>
+                                        {% with orig_qty=ing.amount|default:ing.quantity %}
+                                        {% if orig_qty %}
+                                        <span class="old-value">{{ orig_qty }}</span> {{ ing.unit }}
+                                        {% endif %}
+                                        {% endwith %}
+                                    </td>
+                                    <td>
+                                        {% if ing.amount %}
+                                        <span class="new-value">{{ ing.amount }}</span> {{ ing.unit }}
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="text-center mt-3">
+                        <a href="/dashboard/" class="btn btn-outline-secondary">← К рецептам</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <style>
+            .mult-result {
+                padding: 0.5rem;
+            }
+            .mult-header {
+                font-size: 1.1rem;
+                font-weight: 700;
+                color: var(--detail-dark);
+                text-align: center;
+                margin-bottom: 1rem;
+                padding-bottom: 0.75rem;
+                border-bottom: 2px solid var(--crust);
+            }
+            .mult-table-wrap {
+                overflow-x: auto;
+            }
+            .mult-table {
+                width: 100%;
+                border-collapse: collapse;
+                font-size: 0.95rem;
+            }
+            .mult-table th {
+                background: var(--glass-light);
+                color: var(--text-dark);
+                font-weight: 600;
+                padding: 0.6rem 0.8rem;
+                text-align: left;
+                border-bottom: 2px solid var(--bread-crumb);
+            }
+            .mult-table td {
+                padding: 0.5rem 0.8rem;
+                border-bottom: 1px solid var(--bread-crumb);
+                color: var(--text-dark);
+            }
+            .mult-table tbody tr:last-child td {
+                border-bottom: none;
+            }
+            .old-value {
+                color: var(--shadow-mid);
+                text-decoration: line-through;
+            }
+            .new-value {
+                color: var(--crust);
+                font-weight: 600;
+                font-size: 1.05rem;
+            }
+        </style>
+        {% endif %}
+
+    </div>
+</div>
+{% endblock %}

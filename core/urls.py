@@ -3,9 +3,12 @@ from django.urls import path
 
 from core.views.bot.LLM import recognize_photo, recipe_hydro_analyze, recipe_edit, recognize_text_recipe
 from core.views.bot.crud_recipes import get_user_recipes, create_recipe, get_uniq_recipe, update_recipe, delete_recipe, \
-    get_recipe_children, get_recipe_parents, check_recipe_exists
+    get_recipe_children, get_recipe_parents, check_recipe_exists, get_recipe_tree
 from core.views.bot.crud_users import create_user, delete_user
 from core.views.bot.options import starter_calc, recipe_multiply
+from core.views.web.greeting import home, login_view, register_view, dashboard_view, logout_view, delete_recipe_web
+from core.views.web.calculators import starter_view, multiply_view
+from core.views.web.recipes import create_recipe_web
 
 urlpatterns = [
     path('users/', create_user),
@@ -26,4 +29,19 @@ urlpatterns = [
     path('recipe_hydro_analyze/', recipe_hydro_analyze),
     path('recipe_edit/', recipe_edit),
     path('recipe_check_exists/', check_recipe_exists),
+    path('recipe_tree/', get_recipe_tree),
+
+    # Calculators
+    path('dashboard/starter/', starter_view, name='dashboard_starter'),
+    path('dashboard/multiply/', multiply_view, name='dashboard_multiply'),
+
+    # WEB
+    path('', home, name='home'),
+    path('login/', login_view, name='login'),
+    path('register/', register_view, name='register'),
+    path('dashboard/', dashboard_view, name='dashboard'),
+    path('logout/', logout_view, name='logout'),
+    path('dashboard/recipes/<int:recipe_id>/delete/', delete_recipe_web, name='delete_recipe_web'),
+    path('web/recipes/', create_recipe_web, name='create_recipe_web'),
+
 ]
