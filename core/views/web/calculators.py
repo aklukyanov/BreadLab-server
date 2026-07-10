@@ -2,8 +2,9 @@ from django.shortcuts import render, redirect
 from core.models import Recipe
 from utils.calculations import convert_50_to_100, convert_100_to_50, get_multiplication_result
 from core.views.web.greeting import _get_web_user
+from django.views.decorators.csrf import csrf_exempt
 
-
+@csrf_exempt
 def starter_view(request):
     user_data = _get_web_user(request)
     if not user_data:
@@ -32,7 +33,7 @@ def starter_view(request):
         'active_tab': 'starter',
     })
 
-
+@csrf_exempt
 def multiply_view(request):
     user_data = _get_web_user(request)
     if not user_data:
