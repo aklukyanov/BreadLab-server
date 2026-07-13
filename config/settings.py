@@ -76,6 +76,9 @@ WSGI_APPLICATION = 'config.wsgi.application'
 
 
 # Database
+# https://docs.djangoproject.com/en/6.0/ref/settings/#databases
+
+# Database
 DB_ENGINE = os.getenv('DB', 'sqlite').lower()
 
 if DB_ENGINE == 'postgres':
@@ -96,7 +99,6 @@ else:
             'NAME': BASE_DIR / 'db.sqlite3',
         }
     }
-
 
 
 # Password validation
