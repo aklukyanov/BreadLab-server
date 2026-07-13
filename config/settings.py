@@ -1,3 +1,4 @@
+import json
 """
 Django settings for config project.
 
@@ -25,11 +26,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = django_secret_key
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG=os.environ.get('DEBUG', 'True') # По умолчанию True, в проде отключить!
 
-ALLOWED_HOSTS = ['breadlab-server',
-                 '192.168.1.10',
-                 '127.0.0.1']
+ALLOWED_HOSTS = json.loads(os.getenv('ALLOWED_HOSTS', '["localhost"]'))
 
 
 # Application definition
