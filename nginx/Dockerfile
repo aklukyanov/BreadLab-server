@@ -1,2 +1,2 @@
 FROM nginx
-COPY bread.jpg /static/data/images/bread.jpg
+COPY images/bread.jpg /static/data/images/bread.jpg
