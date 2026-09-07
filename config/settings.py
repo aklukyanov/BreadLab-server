@@ -138,3 +138,4 @@ STATICFILES_DIRS = [
     BASE_DIR / 'static',
 ]
 
+OLLAMA_MODEL=os.environ.get('OLLAMA_MODEL')
