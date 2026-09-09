@@ -11,6 +11,7 @@ from core.views.bot.crud_baking_sessions import (
     update_baking_session_status,
     get_user_baking_sessions,
 )
+from core.views.bot.crud_baking_notes import create_baking_note, get_baking_session_notes, delete_baking_note, update_baking_note
 from core.views.bot.options import starter_calc, recipe_multiply
 from core.views.web.greeting import home, login_view, register_view, dashboard_view, logout_view, delete_recipe_web
 from core.views.web.calculators import starter_view, multiply_view
@@ -33,6 +34,12 @@ urlpatterns = [
     path('baking_sessions/<int:session_id>/update/', update_baking_session_status),
     path('baking_sessions/<int:session_id>/delete/', delete_baking_session),
     path('users/<int:user_id>/baking_sessions/', get_user_baking_sessions),
+
+    # Baking Notes
+    path('baking_notes/', create_baking_note),
+    path('baking_notes/<int:note_id>/update/', update_baking_note),
+    path('baking_notes/<int:note_id>/delete/', delete_baking_note),
+    path('baking_sessions/<int:session_id>/notes/', get_baking_session_notes),
 
     path('starter_calc/', starter_calc),
     path('recipe_multiply/', recipe_multiply),
