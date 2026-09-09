@@ -179,3 +179,67 @@ class BakingSession(models.Model):
 
     def __str__(self):
         return f"{self.recipe.title} ({self.user})"
+
+class BakingNote(models.Model):
+    """
+    Заметка, привязанная к сессии выпечки.
+
+    Каждая заметка относится к одной конкретной сессии (baking_session)
+    и может быть либо текстовым сообщением, либо ссылкой на фото.
+
+    Типы (type):
+        - text: текстовая заметка (note содержит текст)
+        - photo: ссылка на фото в VK (note содержит URL)
+
+    Связи:
+        - baking_session: сессия, к которой относится заметка
+    """
+
+    id: int
+
+    baking_session = models.ForeignKey(
+        'BakingSession',
+        on_delete=models.CASCADE,
+        related_name='notes',
+        verbose_name='Baking Session',
+        help_text='Сессия выпечки, к которой относится заметка',
+    )
+
+    note = models.TextField(
+        blank=True,
+        verbose_name='Note',
+        help_text='Текст заметки или ссылка на фото в VK',
+    )
+
+    type = models.CharField(
+        max_length=20,
+        choices=[
+            ('photo', 'Photo'),
+            ('text', 'Text'),
+        ],
+        verbose_name='Type',
+        help_text='Тип заметки (обязательно): text или photo',
+    )
+
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name='Creation time',
+        help_text='Дата и время создания заметки',
+    )
+
+    updated_at = models.DateTimeField(
+        auto_now=True,
+        verbose_name='Update time',
+        help_text='Дата и время последнего обновления',
+    )
+
+    class Meta:
+        verbose_name = 'Baking Note'
+        verbose_name_plural = 'Baking Notes'
+        ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['baking_session', '-created_at']),
+        ]
+
+    def __str__(self):
+        return f"Note ({self.baking_session})"

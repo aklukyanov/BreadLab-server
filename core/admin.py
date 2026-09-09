@@ -1,6 +1,8 @@
 from django.contrib import admin
 from .models import User
 from .models import Recipe
+from .models import BakingSession
+from .models import BakingNote
 
 
 @admin.register(User)
@@ -50,7 +52,41 @@ class RecipeAdmin(admin.ModelAdmin):
 
     fieldsets = (
         ('Recipe Data', {
-            'fields': ('user', 'recipe', 'dry_sum', 'wet_sum', 'hydration')
+            'fields': ('user', 'recipe', 'hydration')
+        }),
+        ('Metadata', {
+            'fields': ('created_at', 'updated_at'),
+            'classes': ('collapse',)
+        }),
+    )
+
+@admin.register(BakingSession)
+class BakingSessionAdmin(admin.ModelAdmin):
+    list_display = ('id', 'user', 'recipe', 'status', 'created_at', 'updated_at')
+    list_filter = ('status', 'created_at')
+    search_fields = ('user__external_id', 'user__first_name', 'recipe__title')
+    readonly_fields = ('created_at', 'updated_at')
+
+    fieldsets = (
+        ('Session Data', {
+            'fields': ('user', 'recipe', 'status')
+        }),
+        ('Metadata', {
+            'fields': ('created_at', 'updated_at'),
+            'classes': ('collapse',)
+        }),
+    )
+
+@admin.register(BakingNote)
+class BakingNoteAdmin(admin.ModelAdmin):
+    list_display = ('id', 'baking_session', 'type', 'created_at')
+    list_filter = ('type', 'created_at')
+    search_fields = ('baking_session__recipe__title', 'note')
+    readonly_fields = ('created_at', 'updated_at')
+
+    fieldsets = (
+        ('Note Data', {
+            'fields': ('baking_session', 'type', 'note')
         }),
         ('Metadata', {
             'fields': ('created_at', 'updated_at'),
