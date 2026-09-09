@@ -113,3 +113,69 @@ class Recipe(models.Model):
         recipe_name = self.recipe.get('name', 'Unnamed') if self.recipe else 'Empty'
         return f"{recipe_name} ({self.user})"
 
+class BakingSession(models.Model):
+    """
+    Сессия выпечки.
+
+    Фиксирует факт выпечки конкретного рецепта пользователем.
+    Каждая сессия привязана к одному рецепту и одному пользователю.
+
+    Связи:
+        - user: пользователь, который выпёк
+        - recipe: рецепт, который был выпечен
+
+    Статусы:
+        - unfinished: выпечка не завершена (по умолчанию)
+        - finished: выпечка завершена """
+
+    id: int
+
+    user = models.ForeignKey(
+        'User',
+        on_delete=models.CASCADE,
+        related_name='baking_sessions',
+        verbose_name='User',
+        help_text='Пользователь, который выпёк',
+    )
+
+    recipe = models.ForeignKey(
+        'Recipe',
+        on_delete=models.CASCADE,
+        related_name='baking_sessions',
+        verbose_name='Recipe',
+        help_text='Рецепт, который был выпечен',
+    )
+
+    status = models.CharField(
+        max_length=20,
+        choices=[
+            ('finished', 'Finished'),
+            ('unfinished', 'Unfinished'),
+        ],
+        default='unfinished',
+        verbose_name='Status',
+        help_text='Статус выпечки',
+    )
+
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name='Creation time',
+        help_text='Дата и время создания сессии',
+    )
+
+    updated_at = models.DateTimeField(
+        auto_now=True,
+        verbose_name='Update time',
+        help_text='Дата и время последнего обновления',
+    )
+
+    class Meta:
+        verbose_name = 'Baking Session'
+        verbose_name_plural = 'Baking Sessions'
+        ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['user', '-created_at']),
+        ]
+
+    def __str__(self):
+        return f"{self.recipe.title} ({self.user})"
