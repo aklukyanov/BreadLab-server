@@ -6,9 +6,6 @@ from core.models import User, Recipe
 from core.serializers import RecipeSerializer
 from logger import crud_recipes_logger
 
-
-
-
 @csrf_exempt
 def create_recipe(request):
     """

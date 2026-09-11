@@ -61,6 +61,7 @@
     .modal-title {
         color: var(--text-dark);
         font-weight: 700;
+        font-size: 1.35rem;
     }
 
     .session-modal .modal-title {
@@ -85,23 +86,7 @@
         margin-top: 0;
     }
 
-    .ingredient-row {
-        display: flex;
-        justify-content: space-between;
-        padding: 0.2rem 0;
-        font-size: 0.95rem;
-    }
-
-    .ingredient-row .name {
-        color: var(--text-dark);
-    }
-
-    .ingredient-row .amount {
-        color: var(--shadow-mid);
-        font-weight: 500;
-    }
-
-    .empty-state {
+        .empty-state {
         text-align: center;
         padding: 3rem 1rem;
         color: var(--shadow-mid);
@@ -301,6 +286,28 @@
         overflow-y: auto;
         max-height: calc(90vh - 120px);
     }
+    #recipeModal .modal-dialog {
+        max-width: 95vw;
+        height: 95vh;
+    }
+    #recipeModal .modal-content {
+        max-height: 95vh;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+    }
+    #recipeModal .modal-header {
+        flex-shrink: 0;
+    }
+    #recipeModal .modal-body {
+        flex: 1 1 auto;
+        min-height: 0;
+        overflow-y: auto;
+        overflow-x: hidden;
+    }
+    #recipeModal .modal-footer {
+        flex-shrink: 0;
+    }
 
     /* ── Footer buttons spacing ── */
     .modal-footer {
@@ -394,6 +401,20 @@
         font-size: 0.95rem;
         line-height: 1.5;
         word-break: break-word;
+    }
+    .instructions-edit {
+        overflow: hidden;
+        resize: none;
+        border: 1px solid var(--bread-crumb);
+        border-radius: 8px;
+        padding: 0.75rem 0.85rem;
+        font-size: 1.05rem;
+        background: var(--bg-main);
+        color: var(--text-dark);
+    }
+    .instructions-edit:focus {
+        outline: none;
+        border-color: var(--crust);
     }
     .note-photo img {
         max-width: 100%;
@@ -546,7 +567,7 @@
                 <div id="viewFooterBtns">
                     <button type="button" class="btn btn-outline-secondary" onclick="forkRecipe()">Создать на основе</button>
                     <button type="button" class="btn btn-outline-secondary" id="treeBtn" onclick="toggleTree()">Дерево рецептов</button>
-                    <button type="button" class="btn btn-outline-secondary" id="editBtn" onclick="editRecipe()">Редактировать</button>
+                    
                     <button type="button" class="btn btn-outline-secondary" id="sessionsBtn" onclick="loadSessions()">Сессии</button>
                     <button type="button" class="btn btn-outline-secondary" onclick="deleteCurrentRecipe()">Удалить</button>
                 </div>
@@ -605,7 +626,6 @@
     const modalBody = document.getElementById('recipeModalBody');
     const modalTitle = document.getElementById('recipeModalLabel');
     const treeBtn = document.getElementById('treeBtn');
-    const editBtn = document.getElementById('editBtn');
     const viewFooterBtns = document.getElementById('viewFooterBtns');
     const editFooterBtns = document.getElementById('editFooterBtns');
     const sessionsFooterBtns = document.getElementById('sessionsFooterBtns');
@@ -662,7 +682,6 @@
         const recipe = data.recipe || {};
         const recipeData = recipe.data || {};
         const title = recipeData.title || 'Без названия';
-        const groups = recipeData.groups || [];
         currentRecipeTitle = title;
 
         modalTitle.textContent = title;
@@ -672,31 +691,189 @@
         // Parents info
         if (data.parents && data.parents.length > 0) {
             const parentName = data.parent_title || '#' + data.parents[data.parents.length - 1];
-            html += '<p style="margin-bottom:0.75rem;"><span style="color:var(--shadow-mid);font-size:0.9rem;">Создан на основе рецепта "' + escapeHtml(parentName) + '"</span></p>';
+            html += '<p style="margin-bottom:0.75rem;"><span style="color:var(--shadow-mid);font-size:1rem;">Создан на основе рецепта "' + escapeHtml(parentName) + '"</span></p>';
         }
+
+        // Title
+        html += '<div class="mb-3">';
+        html += '<label class="form-label" style="font-weight:600;">Название рецепта</label>';
+        html += '<input type="text" class="form-control edit-title-input" id="view-title" value="' + escapeHtml(title) + '" placeholder="Название рецепта"  onblur="collectAndSave()" onkeydown="if(event.key===\'Enter\') this.blur()">';
+        html += '</div>';
 
         // Ingredients groups
-        for (const group of groups) {
-            const ingredients = group.ingredients || [];
-            if (ingredients.length === 0) continue;
-
-            html += '<h6>' + (group.name || 'Ингредиенты') + '</h6>';
-            for (const ing of ingredients) {
-                const amount = ing.amount || ing.quantity || '';
-                const unit = ing.unit || '';
-                html += '<div class="ingredient-row">';
-                html += '<span class="name">' + (ing.name || '') + '</span>';
-                html += '<span class="amount">' + (amount ? amount + ' ' + unit : '') + '</span>';
-                html += '</div>';
-            }
-        }
-
+        html += '<div id="recipe-groups">';
+        const groups = recipeData.groups || [];
         if (groups.length === 0) {
             html += '<p style="color:var(--shadow-mid);">Нет данных об ингредиентах</p>';
+        } else {
+            for (let gi = 0; gi < groups.length; gi++) {
+                html += renderMainGroupCard(gi, groups[gi]);
+            }
         }
+        html += '<button type="button" class="btn btn-outline-secondary edit-add-group" onclick="addGroupCard()">+ Группа</button>';
+        html += '</div>';
+
+        // Instructions
+        html += '<div class="mb-3">';
+        html += '<label class="form-label" style="font-weight:600;">Технология</label>';
+        html += '<textarea class="form-control instructions-edit" id="view-instructions" placeholder="Технология не указана" oninput="growInstructionsTextarea(this)" onblur="collectAndSave()">' + escapeHtml(recipeData.instructions || '') + '</textarea>';
+        html += '</div>';
 
         html += '</div>';
         modalBody.innerHTML = html;
+
+        const ta = document.getElementById('view-instructions');
+        if (ta) {
+            requestAnimationFrame(() => {
+                growInstructionsTextarea(ta);
+                setTimeout(() => growInstructionsTextarea(ta), 150);
+            });
+            if (document.fonts && document.fonts.ready) {
+                document.fonts.ready.then(() => growInstructionsTextarea(ta));
+            }
+        }
+    }
+
+    function persistRecipe() {
+        return fetch('/api/recipes/' + currentRecipeId + '/update/', {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ recipe: { status: 'ok', data: currentRecipeData.recipe.data } })
+        })
+            .then(r => {
+                if (!r.ok) return r.json().then(e => { throw new Error(e.error || 'Ошибка сохранения'); });
+                return r.json();
+            })
+            .then(data => {
+                currentRecipeData = data;
+            });
+    }
+
+    function renderMainGroupCard(gi, group) {
+        const ingredients = group.ingredients || [];
+        let html = '<div class="edit-group-card" data-group-index="' + gi + '">';
+        html += '<div class="group-header">';
+        html += '<input type="text" class="form-control edit-group-name edit-input-uppercase" value="' + escapeHtml(group.name || '') + '" placeholder="Название группы"  onblur="collectAndSave()" onkeydown="if(event.key===\'Enter\') this.blur()">';
+        html += '<button type="button" class="btn btn-outline-danger btn-sm" onclick="removeGroupCardInline(' + gi + ')" style="border-radius:50%;width:36px;height:36px;padding:0;">×</button>';
+        html += '</div>';
+        html += '<div class="edit-ingredients">';
+        for (let ii = 0; ii < ingredients.length; ii++) {
+            html += renderMainIngredient(gi, ii, ingredients[ii]);
+        }
+        html += '</div>';
+        html += '<button type="button" class="btn btn-outline-primary edit-add-ing" onclick="addIngredientRow(' + gi + ')">+ Ингредиент</button>';
+        html += '</div>';
+        return html;
+    }
+
+    function renderMainIngredient(gi, ii, ing) {
+        const name = ing.name || '';
+        const qty = ing.amount != null ? ing.amount : (ing.quantity || '');
+        const unit = ing.unit || '';
+        let html = '<div class="edit-ing-row" data-gi="' + gi + '" data-ii="' + ii + '">';
+        html += '<input type="text" class="form-control form-control-sm ing-name edit-input-uppercase" value="' + escapeHtml(name) + '" placeholder="Ингредиент"  onblur="collectAndSave()" onkeydown="if(event.key===\'Enter\') this.blur()">';
+        html += '<input type="number" step="any" class="form-control form-control-sm ing-qty" value="' + escapeHtml(String(qty)) + '" placeholder="Кол-во" onblur="collectAndSave()" onkeydown="if(event.key===\'Enter\') this.blur()">';
+        html += '<select class="form-select form-select-sm ing-unit" onchange="collectAndSave()">';
+        for (const u of UNITS) {
+            html += '<option value="' + u + '"' + (u === unit ? ' selected' : '') + '>' + u + '</option>';
+        }
+        html += '</select>';
+        html += '<button type="button" class="btn btn-outline-danger btn-sm btn-remove-ing" onclick="removeIngredientRowInline(' + gi + ',' + ii + ')">×</button>';
+        html += '</div>';
+        return html;
+    }
+
+    function addIngredientRow(gi) {
+        const card = document.querySelector('#recipe-groups .edit-group-card[data-group-index="' + gi + '"]');
+        if (!card) return;
+        const container = card.querySelector('.edit-ingredients');
+        const idx = container.querySelectorAll('.edit-ing-row').length;
+        const div = document.createElement('div');
+        div.innerHTML = renderMainIngredient(gi, idx, {});
+        container.appendChild(div.firstElementChild);
+        const nameEl = div.firstElementChild.querySelector('.ing-name');
+        if (nameEl) nameEl.focus();
+    }
+
+    function addGroupCard() {
+        const container = document.getElementById('recipe-groups');
+        if (!container) return;
+        const emptyMsg = container.querySelector('.edit-group-card') ? null : container.querySelector('p');
+        const count = container.querySelectorAll('.edit-group-card').length;
+        const div = document.createElement('div');
+        div.innerHTML = renderMainGroupCard(count, {});
+        const card = div.firstElementChild;
+        const btn = container.querySelector('.edit-add-group');
+        if (btn) {
+            container.insertBefore(card, btn);
+        } else {
+            container.appendChild(card);
+        }
+        if (emptyMsg) emptyMsg.remove();
+        const nameEl = card.querySelector('.edit-group-name');
+        if (nameEl) nameEl.focus();
+    }
+
+    async function removeIngredientRowInline(gi, ii) {
+        const row = document.querySelector('#recipe-groups .edit-ing-row[data-gi="' + gi + '"][data-ii="' + ii + '"]');
+        if (!row) return;
+        const nameEl = row.querySelector('.ing-name');
+        const name = nameEl ? (nameEl.value.trim() || 'ингредиент') : 'ингредиент';
+        const ok = await showConfirm('Удалить ингредиент?', 'Ингредиент «' + name + '» будет удалён.');
+        if (!ok) return;
+        row.remove();
+        collectAndSave();
+    }
+
+    async function removeGroupCardInline(gi) {
+        const card = document.querySelector('#recipe-groups .edit-group-card[data-group-index="' + gi + '"]');
+        if (!card) return;
+        const nameEl = card.querySelector('.edit-group-name');
+        const name = nameEl ? (nameEl.value.trim() || 'Ингредиенты') : 'Ингредиенты';
+        const ok = await showConfirm('Удалить группу?', 'Группа «' + name + '» и её ингредиенты будут удалены.');
+        if (!ok) return;
+        card.remove();
+        collectAndSave();
+    }
+
+    function collectAndSave() {
+        if (!currentRecipeData) return;
+        const titleEl = document.getElementById('view-title');
+        const title = titleEl ? (titleEl.value.trim().toUpperCase() || 'БЕЗ НАЗВАНИЯ') : (currentRecipeData.recipe.data.title || '');
+        const container = document.getElementById('recipe-groups');
+        const cards = container ? Array.from(container.querySelectorAll('.edit-group-card')) : [];
+        const groups = [];
+        for (const card of cards) {
+            const groupNameEl = card.querySelector('.edit-group-name');
+            const groupName = groupNameEl ? groupNameEl.value.trim().toUpperCase() : '';
+            const ingRows = card.querySelectorAll('.edit-ing-row');
+            const ingredients = [];
+            for (const row of ingRows) {
+                const nameEl = row.querySelector('.ing-name');
+                const name = nameEl ? nameEl.value.trim().toUpperCase() : '';
+                if (!name) continue;
+                const qtyEl = row.querySelector('.ing-qty');
+                const qtyVal = qtyEl ? qtyEl.value.trim() : '';
+                const quantity = qtyVal ? parseFloat(qtyVal) : null;
+                const unitEl = row.querySelector('.ing-unit');
+                const unit = unitEl ? unitEl.value : '';
+                ingredients.push({ name, quantity, unit });
+            }
+            if (groupName === '' && ingredients.length === 0) continue;
+            groups.push({ name: groupName || 'ИНГРЕДИЕНТЫ', ingredients });
+        }
+        const instrEl = document.getElementById('view-instructions');
+        const instructions = instrEl ? (instrEl.value.trim() || null) : (currentRecipeData.recipe.data.instructions || null);
+
+        currentRecipeData.recipe.data.title = title;
+        currentRecipeData.recipe.data.groups = groups;
+        currentRecipeData.recipe.data.instructions = instructions;
+        currentRecipeTitle = title;
+        modalTitle.textContent = title;
+
+        persistRecipe()
+            .then(() => updateRecipeCard(currentRecipeId, title))
+            .catch(err => alert('Ошибка: ' + err.message));
     }
 
     function toggleTree() {
@@ -958,13 +1135,18 @@
 
         html += '<div class="mb-3">';
         html += '<label class="form-label" style="font-weight:600;">Название рецепта</label>';
-        html += '<input type="text" class="form-control edit-title-input" id="edit-title" value="' + escapeHtml(title) + '" oninput="this.value = this.value.toUpperCase()">';
+        html += '<input type="text" class="form-control edit-title-input" id="edit-title" value="' + escapeHtml(title) + '" >';
         html += '</div>';
 
         html += '<div id="edit-groups">';
         for (let gi = 0; gi < groups.length; gi++) {
             html += renderEditGroup(gi, groups[gi]);
         }
+        html += '</div>';
+
+        html += '<div class="mb-3">';
+        html += '<label class="form-label" style="font-weight:600;">Технология</label>';
+        html += '<textarea class="form-control instructions-edit" id="edit-instructions" placeholder="Технология не указана">' + escapeHtml(recipeData.instructions || '') + '</textarea>';
         html += '</div>';
 
         html += '<button type="button" class="btn btn-outline-secondary edit-add-group" onclick="addGroup()">+ Группа</button>';
@@ -977,7 +1159,7 @@
         const ingredients = group.ingredients || [];
         let html = '<div class="edit-group-card" data-group-index="' + gi + '">';
         html += '<div class="group-header">';
-        html += '<input type="text" class="form-control edit-group-name edit-input-uppercase" value="' + escapeHtml(group.name || '') + '" placeholder="Название группы" oninput="this.value = this.value.toUpperCase()">';
+        html += '<input type="text" class="form-control edit-group-name edit-input-uppercase" value="' + escapeHtml(group.name || '') + '" placeholder="Название группы" >';
         html += '<button type="button" class="btn btn-outline-danger btn-sm" onclick="removeGroup(' + gi + ')" style="border-radius:50%;width:36px;height:36px;padding:0;">×</button>';
         html += '</div>';
         html += '<div class="edit-ingredients">';
@@ -995,7 +1177,7 @@
         const qty = ing.amount || ing.quantity || '';
         const unit = ing.unit || '';
         let html = '<div class="edit-ing-row" data-gi="' + gi + '" data-ii="' + ii + '">';
-        html += '<input type="text" class="form-control form-control-sm ing-name edit-input-uppercase" value="' + escapeHtml(name) + '" placeholder="Ингредиент" oninput="this.value = this.value.toUpperCase()">';
+        html += '<input type="text" class="form-control form-control-sm ing-name edit-input-uppercase" value="' + escapeHtml(name) + '" placeholder="Ингредиент" >';
         html += '<input type="number" step="any" class="form-control form-control-sm ing-qty" value="' + escapeHtml(String(qty)) + '" placeholder="Кол-во">';
         html += '<select class="form-select form-select-sm ing-unit">';
         for (const u of UNITS) {
@@ -1061,7 +1243,8 @@
             status: "ok",
             data: {
                 title: title,
-                groups: groups
+                groups: groups,
+                instructions: (document.getElementById('edit-instructions')?.value.trim()) || null
             }
         };
 
@@ -1151,6 +1334,11 @@
 
     function showSpinner() {
         modalBody.innerHTML = '<div class="spinner-container"><div class="spinner"></div></div>';
+    }
+
+    function growInstructionsTextarea(ta) {
+        ta.style.height = 'auto';
+        ta.style.height = ta.scrollHeight + 'px';
     }
 
     function escapeHtml(str) {
