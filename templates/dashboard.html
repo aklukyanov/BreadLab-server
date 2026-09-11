@@ -63,6 +63,10 @@
         font-weight: 700;
     }
 
+    .session-modal .modal-title {
+        text-align: center;
+    }
+
     .modal-body {
         color: var(--text-dark);
         overflow-x: auto;
@@ -335,6 +339,11 @@
     .session-card .card-text {
         color: var(--shadow-mid);
         font-size: 0.85rem;
+    }
+    .session-card .session-date {
+        color: var(--text-dark);
+        font-weight: 600;
+        font-size: 1rem;
     }
 
     /* Status badge */
@@ -1153,7 +1162,7 @@
 
     /* ── Sessions & Notes ── */
 
-    const userId = {{ user_data.id }};
+    const externalId = {{ user_data.external_id }};
     let sessionsCache = [];
     let currentSessionId = null;
     let currentSessionStatus = null;
@@ -1162,11 +1171,11 @@
         if (showingEdit) cancelEdit();
         if (showingTree) toggleTree();
 
-        modalTitle.textContent = 'Сессии';
+        modalTitle.textContent = currentRecipeTitle || 'Сессии';
         showSpinnerInModal();
         enterSessionsMode();
 
-        fetch('/api/users/' + userId + '/baking_sessions/?recipe_id=' + currentRecipeId + '&paginate=false')
+        fetch('/api/users/' + externalId + '/baking_sessions/?recipe_id=' + currentRecipeId + '&paginate=false')
             .then(r => {
                 if (!r.ok) throw new Error('Не удалось загрузить сессии');
                 return r.json();
@@ -1194,10 +1203,7 @@
                 html += '<div class="card session-card" onclick="openSessionDetail(' + s.id + ')">';
                 html += '<div class="card-body">';
                 html += '<div style="display:flex;justify-content:space-between;align-items:center;">';
-                html += '<div>';
-                html += '<h5 class="card-title mb-1">' + escapeHtml(s.recipe_title || 'Сессия #' + s.id) + '</h5>';
-                html += '<p class="card-text mb-0">' + new Date(s.created_at).toLocaleDateString('ru-RU', {day:'numeric',month:'long',year:'numeric'}) + '</p>';
-                html += '</div>';
+                html += '<div class="session-date mb-0">' + escapeHtml(new Date(s.created_at).toLocaleString('ru-RU', {day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'})) + '</div>';
                 html += '<span class="status-badge ' + statusClass + '">' + statusLabel + '</span>';
                 html += '</div>';
                 html += '</div></div></div>';
@@ -1478,6 +1484,8 @@
             })
             .then(data => {
                 currentSessionStatus = data.status;
+                const cached = sessionsCache.find(x => x.id === currentSessionId);
+                if (cached) cached.status = data.status;
                 updateStatusBtn();
                 openSessionDetail(currentSessionId);
             })
@@ -1497,7 +1505,7 @@
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                user_id: userId,
+                external_id: externalId,
                 recipe_id: currentRecipeId,
             })
         })

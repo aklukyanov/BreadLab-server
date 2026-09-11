@@ -14,12 +14,12 @@ def create_baking_session(request):
 
     POST /api/baking_sessions/
     {
-        "user_id": 1,
+        "external_id": "12345678",
         "recipe_id": 5
     }
 
     Поля:
-    - user_id (int, обязательно): ID пользователя.
+    - external_id (str, обязательно): ID пользователя во внешней системе (VK, TG).
     - recipe_id (int, обязательно): ID рецепта.
 
     Сессия всегда создаётся со статусом "unfinished".
@@ -48,16 +48,16 @@ def create_baking_session(request):
         crud_baking_sessions_logger.warning("Invalid JSON in create_baking_session")
         return JsonResponse({'error': 'Invalid JSON'}, status=400)
 
-    user_id = data.get('user_id')
+    external_id = data.get('external_id')
     recipe_id = data.get('recipe_id')
 
-    if not user_id or not recipe_id:
-        return JsonResponse({'error': 'user_id and recipe_id are required'}, status=400)
+    if not external_id or not recipe_id:
+        return JsonResponse({'error': 'external_id and recipe_id are required'}, status=400)
 
     try:
-        user = User.objects.get(id=user_id)
+        user = User.objects.get(external_id=external_id)
     except User.DoesNotExist:
-        crud_baking_sessions_logger.warning(f"User not found: id={user_id}")
+        crud_baking_sessions_logger.warning(f"User not found: external_id={external_id}")
         return JsonResponse({'error': 'User not found'}, status=404)
 
     try:
@@ -72,7 +72,7 @@ def create_baking_session(request):
         status='unfinished',
     )
 
-    crud_baking_sessions_logger.info(f"Baking session created: id={session.id}, user_id={user_id}, recipe_id={recipe_id}")
+    crud_baking_sessions_logger.info(f"Baking session created: id={session.id}, external_id={external_id}, recipe_id={recipe_id}")
 
     serializer = BakingSessionSerializer(session)
     return JsonResponse(serializer.data, status=201)
@@ -165,16 +165,16 @@ def update_baking_session_status(request, session_id):
 
 
 @csrf_exempt
-def get_user_baking_sessions(request, user_id):
+def get_user_baking_sessions(request, external_id):
     """
     Возвращает список сессий выпечки пользователя.
 
     Поддерживает пагинацию (для бота) и полный вывод (для веб-клиента).
 
-    GET /api/users/<user_id>/baking_sessions/
-    GET /api/users/<user_id>/baking_sessions/?page=1
-    GET /api/users/<user_id>/baking_sessions/?recipe_id=5&status=unfinished
-    GET /api/users/<user_id>/baking_sessions/?paginate=false
+    GET /api/users/<external_id>/baking_sessions/
+    GET /api/users/<external_id>/baking_sessions/?page=1
+    GET /api/users/<external_id>/baking_sessions/?recipe_id=5&status=unfinished
+    GET /api/users/<external_id>/baking_sessions/?paginate=false
 
     Параметры query string:
     - page (int, опционально): Номер страницы. По умолчанию 1.
@@ -206,9 +206,9 @@ def get_user_baking_sessions(request, user_id):
         return JsonResponse({'error': 'Method not allowed'}, status=405)
 
     try:
-        user = User.objects.get(id=user_id)
+        user = User.objects.get(external_id=external_id)
     except User.DoesNotExist:
-        crud_baking_sessions_logger.warning(f"User not found: id={user_id}")
+        crud_baking_sessions_logger.warning(f"User not found: external_id={external_id}")
         return JsonResponse({'error': 'User not found'}, status=404)
 
     sessions = BakingSession.objects.filter(user=user).order_by('-created_at')
@@ -224,15 +224,15 @@ def get_user_baking_sessions(request, user_id):
     paginate = request.GET.get('paginate', 'true')
 
     if paginate == 'false':
-        crud_baking_sessions_logger.debug(f"Fetching all sessions for user_id={user_id}, total={sessions.count()}")
+        crud_baking_sessions_logger.debug(f"Fetching all sessions for external_id={external_id}, total={sessions.count()}")
         serializer = BakingSessionSerializer(sessions, many=True)
         return JsonResponse({'baking_sessions': serializer.data})
 
-    paginator = Paginator(sessions, 4)
+    paginator = Paginator(sessions, 2)
     page = request.GET.get('page', 1)
     sessions_page = paginator.get_page(page)
 
-    crud_baking_sessions_logger.debug(f"Fetching sessions for user_id={user_id}, page={page}, total={paginator.count}")
+    crud_baking_sessions_logger.debug(f"Fetching sessions for external_id={external_id}, page={page}, total={paginator.count}")
 
     serializer = BakingSessionSerializer(sessions_page, many=True)
     return JsonResponse({

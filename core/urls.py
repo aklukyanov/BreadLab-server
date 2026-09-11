@@ -33,7 +33,7 @@ urlpatterns = [
     path('baking_sessions/', create_baking_session),
     path('baking_sessions/<int:session_id>/update/', update_baking_session_status),
     path('baking_sessions/<int:session_id>/delete/', delete_baking_session),
-    path('users/<int:user_id>/baking_sessions/', get_user_baking_sessions),
+    path('users/<str:external_id>/baking_sessions/', get_user_baking_sessions),
 
     # Baking Notes
     path('baking_notes/', create_baking_note),

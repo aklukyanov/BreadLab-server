@@ -1,6 +1,8 @@
 import json
 import base64
 import requests
+
+from config.settings import OLLAMA_MODEL
 from logger import llm_client_logger
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -30,7 +32,7 @@ def recognize_text_recipe(request):
         full_prompt = f"{recognize_text_recipe_prompt}\n\nТЕКСТ РЕЦЕПТА:\n{recipe_text}"
 
         response = cloud_client.chat(
-            model='gemma3:27b-cloud',
+            model=OLLAMA_MODEL,
             messages=[{'role': 'user', 'content': full_prompt}],
             options={'temperature': 0.1, 'num_predict': 1024},
             think=False,
@@ -77,7 +79,7 @@ def recognize_photo(request):
             return JsonResponse({'error': 'Photo is required'}, status=400)
 
         response = cloud_client.chat(
-            model='gemma3:27b-cloud',
+            model=OLLAMA_MODEL,
             messages=[{
                 'role': 'user',
                 'content': photo_recognize_prompt,
@@ -145,7 +147,7 @@ def recipe_edit(request):
 
     try:
         response = cloud_client.chat(
-            model='gemma3:27b-cloud',
+            model=OLLAMA_MODEL,
             messages=[{
                 'role': 'user',
                 'content': f"{recipe_edit_prompt}\nрецепт - {recipe}\nинструкция - {instruction}"
@@ -197,7 +199,7 @@ def recipe_hydro_analyze(request):
 
     try:
         response = cloud_client.chat(
-            model='gemma3:27b-cloud',
+            model=OLLAMA_MODEL,
             messages=[{
                 'role': 'user',
                 'content': f'{recipe_hydro_analyze_prompt}.\n Исходный рецепт:\n{recipe}'
