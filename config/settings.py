@@ -12,7 +12,7 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 import os
 from pathlib import Path
-
+import json
 from utils.client import django_secret_key
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.

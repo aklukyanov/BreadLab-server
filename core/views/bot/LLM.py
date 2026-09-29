@@ -15,7 +15,6 @@ from utils.prompts import (
 )
 
 
-
 @csrf_exempt
 def recognize_text_recipe(request):
     """Обработчик текстового рецепта"""
