@@ -61,6 +61,11 @@
     .modal-title {
         color: var(--text-dark);
         font-weight: 700;
+        font-size: 1.35rem;
+    }
+
+    .session-modal .modal-title {
+        text-align: center;
     }
 
     .modal-body {
@@ -81,23 +86,7 @@
         margin-top: 0;
     }
 
-    .ingredient-row {
-        display: flex;
-        justify-content: space-between;
-        padding: 0.2rem 0;
-        font-size: 0.95rem;
-    }
-
-    .ingredient-row .name {
-        color: var(--text-dark);
-    }
-
-    .ingredient-row .amount {
-        color: var(--shadow-mid);
-        font-weight: 500;
-    }
-
-    .empty-state {
+        .empty-state {
         text-align: center;
         padding: 3rem 1rem;
         color: var(--shadow-mid);
@@ -287,6 +276,243 @@
         box-shadow: 0 4px 16px rgba(208, 126, 46, 0.3);
         font-weight: 600;
     }
+
+    /* ── Session modal (full-page) ── */
+    .session-modal .modal-dialog {
+        max-width: 95vw;
+        height: 90vh;
+    }
+    .session-modal .modal-body {
+        overflow-y: auto;
+        max-height: calc(90vh - 120px);
+    }
+    #recipeModal .modal-dialog {
+        max-width: 95vw;
+        height: 95vh;
+    }
+    #recipeModal .modal-content {
+        max-height: 95vh;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+    }
+    #recipeModal .modal-header {
+        flex-shrink: 0;
+    }
+    #recipeModal .modal-body {
+        flex: 1 1 auto;
+        min-height: 0;
+        overflow-y: auto;
+        overflow-x: hidden;
+    }
+    #recipeModal .modal-footer {
+        flex-shrink: 0;
+    }
+
+    /* ── Footer buttons spacing ── */
+    .modal-footer {
+        gap: 0.75rem;
+    }
+    .modal-footer > * {
+        margin: 0;
+    }
+    #viewFooterBtns,
+    #sessionsFooterBtns,
+    #sessionDetailFooterBtns,
+    #editFooterBtns {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        align-items: center;
+    }
+
+    /* Session cards */
+    .session-card {
+        cursor: pointer;
+        transition: all 0.2s ease;
+        border: 1px solid var(--shadow-glass);
+    }
+    .session-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 24px rgba(96, 61, 25, 0.10);
+        border-color: var(--crust);
+    }
+    .session-card .card-title {
+        color: var(--text-dark);
+        font-weight: 600;
+        font-size: 1.1rem;
+        margin-bottom: 0.3rem;
+    }
+    .session-card .card-text {
+        color: var(--shadow-mid);
+        font-size: 0.85rem;
+    }
+    .session-card .session-date {
+        color: var(--text-dark);
+        font-weight: 600;
+        font-size: 1rem;
+    }
+
+    /* Status badge */
+    .status-badge {
+        display: inline-block;
+        padding: 0.2rem 0.7rem;
+        border-radius: 50px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+    .status-unfinished {
+        background: var(--glass-light);
+        color: var(--shadow-mid);
+    }
+    .status-finished {
+        background: #d4edda;
+        color: #155724;
+    }
+
+    /* Note card */
+    .note-card {
+        border: 1px solid var(--shadow-glass);
+        border-radius: 12px;
+        padding: 1rem;
+        margin-bottom: 0.75rem;
+        transition: all 0.2s ease;
+        position: relative;
+    }
+    .note-card:hover {
+        border-color: var(--crust);
+        box-shadow: 0 4px 12px rgba(96, 61, 25, 0.08);
+    }
+    .note-type-badge {
+        display: inline-block;
+        font-size: 0.75rem;
+        font-weight: 600;
+        margin-bottom: 0.4rem;
+    }
+    .note-type-text { color: var(--shadow-mid); }
+    .note-type-photo { color: var(--crust); }
+    .note-date {
+        font-size: 0.75rem;
+        color: var(--shadow-mid);
+        margin-bottom: 0.5rem;
+    }
+    .note-text {
+        color: var(--text-dark);
+        font-size: 0.95rem;
+        line-height: 1.5;
+        word-break: break-word;
+    }
+    .instructions-edit {
+        overflow: hidden;
+        resize: none;
+        border: 1px solid var(--bread-crumb);
+        border-radius: 8px;
+        padding: 0.75rem 0.85rem;
+        font-size: 1.05rem;
+        background: var(--bg-main);
+        color: var(--text-dark);
+    }
+    .instructions-edit:focus {
+        outline: none;
+        border-color: var(--crust);
+    }
+    .note-photo img {
+        max-width: 100%;
+        max-height: 400px;
+        border-radius: 12px;
+        object-fit: contain;
+    }
+    .note-photo a {
+        color: var(--crust);
+        text-decoration: none;
+        font-weight: 500;
+    }
+    .note-photo a:hover {
+        text-decoration: underline;
+    }
+    .note-actions {
+        position: absolute;
+        top: 0.75rem;
+        right: 0.75rem;
+        display: flex;
+        gap: 0.3rem;
+        opacity: 0;
+        transition: opacity 0.2s;
+    }
+    .note-card:hover .note-actions {
+        opacity: 1;
+    }
+    .note-actions .btn {
+        padding: 0.2rem 0.5rem;
+        font-size: 0.8rem;
+        border-radius: 8px;
+    }
+    .note-edit-area {
+        width: 100%;
+        min-height: 80px;
+        border: 1px solid var(--bread-crumb);
+        border-radius: 8px;
+        padding: 0.5rem;
+        font-size: 0.95rem;
+        resize: vertical;
+        background: var(--bg-main);
+        color: var(--text-dark);
+    }
+    .note-edit-area:focus {
+        outline: none;
+        border-color: var(--crust);
+    }
+
+    /* Create note form */
+    .create-note-form {
+        background: var(--bg-main);
+        border: 1px solid var(--bread-crumb);
+        border-radius: 12px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+    }
+    .create-note-form textarea {
+        width: 100%;
+        min-height: 60px;
+        border: 1px solid var(--bread-crumb);
+        border-radius: 8px;
+        padding: 0.5rem;
+        font-size: 0.95rem;
+        resize: vertical;
+        background: var(--bg-card);
+        color: var(--text-dark);
+    }
+    .create-note-form textarea:focus {
+        outline: none;
+        border-color: var(--crust);
+    }
+    .fab-add-note {
+        position: fixed;
+        bottom: 6rem;
+        right: 2rem;
+        z-index: 1050;
+        border-radius: 50px;
+        padding: 0.6rem 1.2rem;
+        box-shadow: 0 4px 16px rgba(208, 126, 46, 0.3);
+        font-weight: 600;
+        font-size: 0.9rem;
+    }
+    .session-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid var(--bread-crumb);
+    }
+    .session-header h4 {
+        margin: 0;
+        color: var(--text-dark);
+        font-weight: 700;
+    }
+    .session-header {
+        position: relative;
+    }
 </style>
 {% endblock %}
 
@@ -341,13 +567,42 @@
                 <div id="viewFooterBtns">
                     <button type="button" class="btn btn-outline-secondary" onclick="forkRecipe()">Создать на основе</button>
                     <button type="button" class="btn btn-outline-secondary" id="treeBtn" onclick="toggleTree()">Дерево рецептов</button>
-                    <button type="button" class="btn btn-outline-secondary" id="editBtn" onclick="editRecipe()">Редактировать</button>
+                    
+                    <button type="button" class="btn btn-outline-secondary" id="sessionsBtn" onclick="loadSessions()">Сессии</button>
                     <button type="button" class="btn btn-outline-secondary" onclick="deleteCurrentRecipe()">Удалить</button>
+                </div>
+                <div id="sessionsFooterBtns" style="display:none;">
+                    <button type="button" class="btn btn-primary" onclick="createSession()" style="border-radius:50px;">+ Новая сессия</button>
+                    <button type="button" class="btn btn-outline-secondary" onclick="backToRecipe()">Закрыть</button>
+                </div>
+                <div id="sessionDetailFooterBtns" style="display:none;">
+                    <button type="button" class="btn btn-outline-secondary" onclick="backToSessionsList()">Назад к сессиям</button>
+                    <button type="button" class="btn btn-outline-secondary" onclick="deleteSessionFromModal()">Удалить сессию</button>
+                    <button type="button" class="btn btn-outline-secondary" id="sessionStatusBtn" onclick="toggleSessionStatus()">Завершить</button>
                 </div>
                 <div id="editFooterBtns" style="display:none;">
                     <button type="button" class="btn btn-success" onclick="saveRecipe()">Сохранить</button>
                     <button type="button" class="btn btn-outline-secondary" onclick="cancelEdit()">Отмена</button>
                 </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Confirm Modal -->
+<div class="modal fade" id="confirmModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" style="max-width:400px;">
+        <div class="modal-content" style="border-radius:20px;">
+            <div class="modal-header" style="border-bottom:1px solid var(--shadow-glass);">
+                <h5 class="modal-title" id="confirmModalTitle" style="color:var(--text-dark);font-weight:700;"></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+            </div>
+            <div class="modal-body">
+                <p id="confirmModalMessage" style="color:var(--shadow-mid);margin:0;font-size:0.95rem;"></p>
+            </div>
+            <div class="modal-footer" style="border-top:1px solid var(--shadow-glass);">
+                <button type="button" class="btn btn-outline-secondary" id="confirmCancelBtn" style="border-radius:50px;">Отмена</button>
+                <button type="button" class="btn btn-danger" id="confirmOkBtn" style="border-radius:50px;">Удалить</button>
             </div>
         </div>
     </div>
@@ -371,15 +626,19 @@
     const modalBody = document.getElementById('recipeModalBody');
     const modalTitle = document.getElementById('recipeModalLabel');
     const treeBtn = document.getElementById('treeBtn');
-    const editBtn = document.getElementById('editBtn');
     const viewFooterBtns = document.getElementById('viewFooterBtns');
     const editFooterBtns = document.getElementById('editFooterBtns');
+    const sessionsFooterBtns = document.getElementById('sessionsFooterBtns');
+    const sessionDetailFooterBtns = document.getElementById('sessionDetailFooterBtns');
 
     function enterViewMode() {
         showingEdit = false;
         showingTree = false;
         viewFooterBtns.style.display = '';
         editFooterBtns.style.display = 'none';
+        sessionsFooterBtns.style.display = 'none';
+        sessionDetailFooterBtns.style.display = 'none';
+        modalEl.classList.remove('session-modal');
         treeBtn.textContent = 'Дерево рецептов';
     }
 
@@ -387,6 +646,9 @@
         showingEdit = true;
         viewFooterBtns.style.display = 'none';
         editFooterBtns.style.display = '';
+        sessionsFooterBtns.style.display = 'none';
+        sessionDetailFooterBtns.style.display = 'none';
+        modalEl.classList.remove('session-modal');
     }
 
     function openRecipeModal(recipeId) {
@@ -420,7 +682,6 @@
         const recipe = data.recipe || {};
         const recipeData = recipe.data || {};
         const title = recipeData.title || 'Без названия';
-        const groups = recipeData.groups || [];
         currentRecipeTitle = title;
 
         modalTitle.textContent = title;
@@ -430,31 +691,189 @@
         // Parents info
         if (data.parents && data.parents.length > 0) {
             const parentName = data.parent_title || '#' + data.parents[data.parents.length - 1];
-            html += '<p style="margin-bottom:0.75rem;"><span style="color:var(--shadow-mid);font-size:0.9rem;">Создан на основе рецепта "' + escapeHtml(parentName) + '"</span></p>';
+            html += '<p style="margin-bottom:0.75rem;"><span style="color:var(--shadow-mid);font-size:1rem;">Создан на основе рецепта "' + escapeHtml(parentName) + '"</span></p>';
         }
+
+        // Title
+        html += '<div class="mb-3">';
+        html += '<label class="form-label" style="font-weight:600;">Название рецепта</label>';
+        html += '<input type="text" class="form-control edit-title-input" id="view-title" value="' + escapeHtml(title) + '" placeholder="Название рецепта"  onblur="collectAndSave()" onkeydown="if(event.key===\'Enter\') this.blur()">';
+        html += '</div>';
 
         // Ingredients groups
-        for (const group of groups) {
-            const ingredients = group.ingredients || [];
-            if (ingredients.length === 0) continue;
-
-            html += '<h6>' + (group.name || 'Ингредиенты') + '</h6>';
-            for (const ing of ingredients) {
-                const amount = ing.amount || ing.quantity || '';
-                const unit = ing.unit || '';
-                html += '<div class="ingredient-row">';
-                html += '<span class="name">' + (ing.name || '') + '</span>';
-                html += '<span class="amount">' + (amount ? amount + ' ' + unit : '') + '</span>';
-                html += '</div>';
-            }
-        }
-
+        html += '<div id="recipe-groups">';
+        const groups = recipeData.groups || [];
         if (groups.length === 0) {
             html += '<p style="color:var(--shadow-mid);">Нет данных об ингредиентах</p>';
+        } else {
+            for (let gi = 0; gi < groups.length; gi++) {
+                html += renderMainGroupCard(gi, groups[gi]);
+            }
         }
+        html += '<button type="button" class="btn btn-outline-secondary edit-add-group" onclick="addGroupCard()">+ Группа</button>';
+        html += '</div>';
+
+        // Instructions
+        html += '<div class="mb-3">';
+        html += '<label class="form-label" style="font-weight:600;">Технология</label>';
+        html += '<textarea class="form-control instructions-edit" id="view-instructions" placeholder="Технология не указана" oninput="growInstructionsTextarea(this)" onblur="collectAndSave()">' + escapeHtml(recipeData.instructions || '') + '</textarea>';
+        html += '</div>';
 
         html += '</div>';
         modalBody.innerHTML = html;
+
+        const ta = document.getElementById('view-instructions');
+        if (ta) {
+            requestAnimationFrame(() => {
+                growInstructionsTextarea(ta);
+                setTimeout(() => growInstructionsTextarea(ta), 150);
+            });
+            if (document.fonts && document.fonts.ready) {
+                document.fonts.ready.then(() => growInstructionsTextarea(ta));
+            }
+        }
+    }
+
+    function persistRecipe() {
+        return fetch('/api/recipes/' + currentRecipeId + '/update/', {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ recipe: { status: 'ok', data: currentRecipeData.recipe.data } })
+        })
+            .then(r => {
+                if (!r.ok) return r.json().then(e => { throw new Error(e.error || 'Ошибка сохранения'); });
+                return r.json();
+            })
+            .then(data => {
+                currentRecipeData = data;
+            });
+    }
+
+    function renderMainGroupCard(gi, group) {
+        const ingredients = group.ingredients || [];
+        let html = '<div class="edit-group-card" data-group-index="' + gi + '">';
+        html += '<div class="group-header">';
+        html += '<input type="text" class="form-control edit-group-name edit-input-uppercase" value="' + escapeHtml(group.name || '') + '" placeholder="Название группы"  onblur="collectAndSave()" onkeydown="if(event.key===\'Enter\') this.blur()">';
+        html += '<button type="button" class="btn btn-outline-danger btn-sm" onclick="removeGroupCardInline(' + gi + ')" style="border-radius:50%;width:36px;height:36px;padding:0;">×</button>';
+        html += '</div>';
+        html += '<div class="edit-ingredients">';
+        for (let ii = 0; ii < ingredients.length; ii++) {
+            html += renderMainIngredient(gi, ii, ingredients[ii]);
+        }
+        html += '</div>';
+        html += '<button type="button" class="btn btn-outline-primary edit-add-ing" onclick="addIngredientRow(' + gi + ')">+ Ингредиент</button>';
+        html += '</div>';
+        return html;
+    }
+
+    function renderMainIngredient(gi, ii, ing) {
+        const name = ing.name || '';
+        const qty = ing.amount != null ? ing.amount : (ing.quantity || '');
+        const unit = ing.unit || '';
+        let html = '<div class="edit-ing-row" data-gi="' + gi + '" data-ii="' + ii + '">';
+        html += '<input type="text" class="form-control form-control-sm ing-name edit-input-uppercase" value="' + escapeHtml(name) + '" placeholder="Ингредиент"  onblur="collectAndSave()" onkeydown="if(event.key===\'Enter\') this.blur()">';
+        html += '<input type="number" step="any" class="form-control form-control-sm ing-qty" value="' + escapeHtml(String(qty)) + '" placeholder="Кол-во" onblur="collectAndSave()" onkeydown="if(event.key===\'Enter\') this.blur()">';
+        html += '<select class="form-select form-select-sm ing-unit" onchange="collectAndSave()">';
+        for (const u of UNITS) {
+            html += '<option value="' + u + '"' + (u === unit ? ' selected' : '') + '>' + u + '</option>';
+        }
+        html += '</select>';
+        html += '<button type="button" class="btn btn-outline-danger btn-sm btn-remove-ing" onclick="removeIngredientRowInline(' + gi + ',' + ii + ')">×</button>';
+        html += '</div>';
+        return html;
+    }
+
+    function addIngredientRow(gi) {
+        const card = document.querySelector('#recipe-groups .edit-group-card[data-group-index="' + gi + '"]');
+        if (!card) return;
+        const container = card.querySelector('.edit-ingredients');
+        const idx = container.querySelectorAll('.edit-ing-row').length;
+        const div = document.createElement('div');
+        div.innerHTML = renderMainIngredient(gi, idx, {});
+        container.appendChild(div.firstElementChild);
+        const nameEl = div.firstElementChild.querySelector('.ing-name');
+        if (nameEl) nameEl.focus();
+    }
+
+    function addGroupCard() {
+        const container = document.getElementById('recipe-groups');
+        if (!container) return;
+        const emptyMsg = container.querySelector('.edit-group-card') ? null : container.querySelector('p');
+        const count = container.querySelectorAll('.edit-group-card').length;
+        const div = document.createElement('div');
+        div.innerHTML = renderMainGroupCard(count, {});
+        const card = div.firstElementChild;
+        const btn = container.querySelector('.edit-add-group');
+        if (btn) {
+            container.insertBefore(card, btn);
+        } else {
+            container.appendChild(card);
+        }
+        if (emptyMsg) emptyMsg.remove();
+        const nameEl = card.querySelector('.edit-group-name');
+        if (nameEl) nameEl.focus();
+    }
+
+    async function removeIngredientRowInline(gi, ii) {
+        const row = document.querySelector('#recipe-groups .edit-ing-row[data-gi="' + gi + '"][data-ii="' + ii + '"]');
+        if (!row) return;
+        const nameEl = row.querySelector('.ing-name');
+        const name = nameEl ? (nameEl.value.trim() || 'ингредиент') : 'ингредиент';
+        const ok = await showConfirm('Удалить ингредиент?', 'Ингредиент «' + name + '» будет удалён.');
+        if (!ok) return;
+        row.remove();
+        collectAndSave();
+    }
+
+    async function removeGroupCardInline(gi) {
+        const card = document.querySelector('#recipe-groups .edit-group-card[data-group-index="' + gi + '"]');
+        if (!card) return;
+        const nameEl = card.querySelector('.edit-group-name');
+        const name = nameEl ? (nameEl.value.trim() || 'Ингредиенты') : 'Ингредиенты';
+        const ok = await showConfirm('Удалить группу?', 'Группа «' + name + '» и её ингредиенты будут удалены.');
+        if (!ok) return;
+        card.remove();
+        collectAndSave();
+    }
+
+    function collectAndSave() {
+        if (!currentRecipeData) return;
+        const titleEl = document.getElementById('view-title');
+        const title = titleEl ? (titleEl.value.trim().toUpperCase() || 'БЕЗ НАЗВАНИЯ') : (currentRecipeData.recipe.data.title || '');
+        const container = document.getElementById('recipe-groups');
+        const cards = container ? Array.from(container.querySelectorAll('.edit-group-card')) : [];
+        const groups = [];
+        for (const card of cards) {
+            const groupNameEl = card.querySelector('.edit-group-name');
+            const groupName = groupNameEl ? groupNameEl.value.trim().toUpperCase() : '';
+            const ingRows = card.querySelectorAll('.edit-ing-row');
+            const ingredients = [];
+            for (const row of ingRows) {
+                const nameEl = row.querySelector('.ing-name');
+                const name = nameEl ? nameEl.value.trim().toUpperCase() : '';
+                if (!name) continue;
+                const qtyEl = row.querySelector('.ing-qty');
+                const qtyVal = qtyEl ? qtyEl.value.trim() : '';
+                const quantity = qtyVal ? parseFloat(qtyVal) : null;
+                const unitEl = row.querySelector('.ing-unit');
+                const unit = unitEl ? unitEl.value : '';
+                ingredients.push({ name, quantity, unit });
+            }
+            if (groupName === '' && ingredients.length === 0) continue;
+            groups.push({ name: groupName || 'ИНГРЕДИЕНТЫ', ingredients });
+        }
+        const instrEl = document.getElementById('view-instructions');
+        const instructions = instrEl ? (instrEl.value.trim() || null) : (currentRecipeData.recipe.data.instructions || null);
+
+        currentRecipeData.recipe.data.title = title;
+        currentRecipeData.recipe.data.groups = groups;
+        currentRecipeData.recipe.data.instructions = instructions;
+        currentRecipeTitle = title;
+        modalTitle.textContent = title;
+
+        persistRecipe()
+            .then(() => updateRecipeCard(currentRecipeId, title))
+            .catch(err => alert('Ошибка: ' + err.message));
     }
 
     function toggleTree() {
@@ -716,13 +1135,18 @@
 
         html += '<div class="mb-3">';
         html += '<label class="form-label" style="font-weight:600;">Название рецепта</label>';
-        html += '<input type="text" class="form-control edit-title-input" id="edit-title" value="' + escapeHtml(title) + '" oninput="this.value = this.value.toUpperCase()">';
+        html += '<input type="text" class="form-control edit-title-input" id="edit-title" value="' + escapeHtml(title) + '" >';
         html += '</div>';
 
         html += '<div id="edit-groups">';
         for (let gi = 0; gi < groups.length; gi++) {
             html += renderEditGroup(gi, groups[gi]);
         }
+        html += '</div>';
+
+        html += '<div class="mb-3">';
+        html += '<label class="form-label" style="font-weight:600;">Технология</label>';
+        html += '<textarea class="form-control instructions-edit" id="edit-instructions" placeholder="Технология не указана">' + escapeHtml(recipeData.instructions || '') + '</textarea>';
         html += '</div>';
 
         html += '<button type="button" class="btn btn-outline-secondary edit-add-group" onclick="addGroup()">+ Группа</button>';
@@ -735,7 +1159,7 @@
         const ingredients = group.ingredients || [];
         let html = '<div class="edit-group-card" data-group-index="' + gi + '">';
         html += '<div class="group-header">';
-        html += '<input type="text" class="form-control edit-group-name edit-input-uppercase" value="' + escapeHtml(group.name || '') + '" placeholder="Название группы" oninput="this.value = this.value.toUpperCase()">';
+        html += '<input type="text" class="form-control edit-group-name edit-input-uppercase" value="' + escapeHtml(group.name || '') + '" placeholder="Название группы" >';
         html += '<button type="button" class="btn btn-outline-danger btn-sm" onclick="removeGroup(' + gi + ')" style="border-radius:50%;width:36px;height:36px;padding:0;">×</button>';
         html += '</div>';
         html += '<div class="edit-ingredients">';
@@ -753,7 +1177,7 @@
         const qty = ing.amount || ing.quantity || '';
         const unit = ing.unit || '';
         let html = '<div class="edit-ing-row" data-gi="' + gi + '" data-ii="' + ii + '">';
-        html += '<input type="text" class="form-control form-control-sm ing-name edit-input-uppercase" value="' + escapeHtml(name) + '" placeholder="Ингредиент" oninput="this.value = this.value.toUpperCase()">';
+        html += '<input type="text" class="form-control form-control-sm ing-name edit-input-uppercase" value="' + escapeHtml(name) + '" placeholder="Ингредиент" >';
         html += '<input type="number" step="any" class="form-control form-control-sm ing-qty" value="' + escapeHtml(String(qty)) + '" placeholder="Кол-во">';
         html += '<select class="form-select form-select-sm ing-unit">';
         for (const u of UNITS) {
@@ -819,7 +1243,8 @@
             status: "ok",
             data: {
                 title: title,
-                groups: groups
+                groups: groups,
+                instructions: (document.getElementById('edit-instructions')?.value.trim()) || null
             }
         };
 
@@ -889,9 +1314,10 @@
         }
     }
 
-    function deleteCurrentRecipe() {
+    async function deleteCurrentRecipe() {
         const title = currentRecipeTitle || 'этот рецепт';
-        if (confirm('Удалить рецепт «' + title + '»?')) {
+        const ok = await showConfirm('Удалить рецепт?', 'Рецепт «' + title + '» будет удалён.');
+        if (ok) {
             const form = document.getElementById('deleteForm');
             form.action = '/dashboard/recipes/' + currentRecipeId + '/delete/';
             form.submit();
@@ -910,11 +1336,416 @@
         modalBody.innerHTML = '<div class="spinner-container"><div class="spinner"></div></div>';
     }
 
+    function growInstructionsTextarea(ta) {
+        ta.style.height = 'auto';
+        ta.style.height = ta.scrollHeight + 'px';
+    }
+
     function escapeHtml(str) {
         if (!str) return '';
         const div = document.createElement('div');
         div.textContent = str;
         return div.innerHTML;
+    }
+
+    /* ── Sessions & Notes ── */
+
+    const externalId = {{ user_data.external_id }};
+    let sessionsCache = [];
+    let currentSessionId = null;
+    let currentSessionStatus = null;
+
+    function loadSessions() {
+        if (showingEdit) cancelEdit();
+        if (showingTree) toggleTree();
+
+        modalTitle.textContent = currentRecipeTitle || 'Сессии';
+        showSpinnerInModal();
+        enterSessionsMode();
+
+        fetch('/api/users/' + externalId + '/baking_sessions/?recipe_id=' + currentRecipeId + '&paginate=false')
+            .then(r => {
+                if (!r.ok) throw new Error('Не удалось загрузить сессии');
+                return r.json();
+            })
+            .then(data => {
+                sessionsCache = data.baking_sessions || [];
+                renderSessionsList();
+            })
+            .catch(err => {
+                modalBody.innerHTML = '<div class="alert alert-danger">' + escapeHtml(err.message) + '</div>';
+            });
+    }
+
+    function renderSessionsList() {
+        let html = '<div class="modal-fade-content">';
+
+        if (sessionsCache.length === 0) {
+            html += '<div class="empty-state"><p>У этого рецепта пока нет сессий выпечки</p></div>';
+        } else {
+            html += '<div class="row justify-content-center">';
+            for (const s of sessionsCache) {
+                const statusClass = s.status === 'finished' ? 'status-finished' : 'status-unfinished';
+                const statusLabel = s.status === 'finished' ? 'Завершена' : 'В процессе';
+                html += '<div class="col-12 mb-3">';
+                html += '<div class="card session-card" onclick="openSessionDetail(' + s.id + ')">';
+                html += '<div class="card-body">';
+                html += '<div style="display:flex;justify-content:space-between;align-items:center;">';
+                html += '<div class="session-date mb-0">' + escapeHtml(new Date(s.created_at).toLocaleString('ru-RU', {day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'})) + '</div>';
+                html += '<span class="status-badge ' + statusClass + '">' + statusLabel + '</span>';
+                html += '</div>';
+                html += '</div></div></div>';
+            }
+            html += '</div>';
+        }
+
+        html += '</div>';
+        modalBody.innerHTML = html;
+    }
+
+    function enterSessionsMode() {
+        viewFooterBtns.style.display = 'none';
+        editFooterBtns.style.display = 'none';
+        sessionsFooterBtns.style.display = '';
+        sessionDetailFooterBtns.style.display = 'none';
+        modalEl.classList.add('session-modal');
+    }
+
+    function enterSessionDetailMode() {
+        viewFooterBtns.style.display = 'none';
+        editFooterBtns.style.display = 'none';
+        sessionsFooterBtns.style.display = 'none';
+        sessionDetailFooterBtns.style.display = '';
+        modalEl.classList.add('session-modal');
+    }
+
+    function exitSessionMode() {
+        modalEl.classList.remove('session-modal');
+        viewFooterBtns.style.display = '';
+        editFooterBtns.style.display = 'none';
+        sessionsFooterBtns.style.display = 'none';
+        sessionDetailFooterBtns.style.display = 'none';
+    }
+
+    function backToRecipe() {
+        exitSessionMode();
+        enterViewMode();
+        loadRecipe(currentRecipeId);
+    }
+
+    function backToSessionsList() {
+        loadSessions();
+    }
+
+    function openSessionDetail(sessionId) {
+        currentSessionId = sessionId;
+        const session = sessionsCache.find(s => s.id === sessionId);
+        currentSessionStatus = session ? session.status : 'unfinished';
+
+        modalTitle.textContent = session ? (session.recipe_title || 'Сессия') : 'Сессия';
+        showSpinnerInModal();
+        enterSessionDetailMode();
+
+        updateStatusBtn();
+
+        fetch('/api/baking_sessions/' + sessionId + '/notes/?paginate=false')
+            .then(r => {
+                if (!r.ok) throw new Error('Не удалось загрузить заметки');
+                return r.json();
+            })
+            .then(data => {
+                const notes = data.notes || [];
+                renderSessionDetail(notes);
+            })
+            .catch(err => {
+                modalBody.innerHTML = '<div class="alert alert-danger">' + escapeHtml(err.message) + '</div>';
+            });
+    }
+
+    function renderSessionDetail(notes) {
+        let html = '<div class="modal-fade-content">';
+
+        /* Header */
+        html += '<div class="session-header">';
+        html += '<h4>' + escapeHtml(modalTitle.textContent) + '</h4>';
+        const statusClass = currentSessionStatus === 'finished' ? 'status-finished' : 'status-unfinished';
+        const statusLabel = currentSessionStatus === 'finished' ? 'Завершена' : 'В процессе';
+        html += '<span class="status-badge ' + statusClass + '">' + statusLabel + '</span>';
+        html += '</div>';
+
+        /* Notes list (oldest first — server order) */
+        if (notes.length === 0) {
+            html += '<div class="empty-state"><p>Пока нет заметок</p></div>';
+        } else {
+            for (const n of notes) {
+                html += renderNoteCard(n);
+            }
+        }
+
+        /* Create note form — at the bottom */
+        html += '<div class="create-note-form" id="createNoteForm">';
+        html += '<textarea id="newNoteText" class="mb-2" placeholder="Введите заметку..."></textarea>';
+        html += '<button type="button" class="btn btn-primary btn-sm" onclick="createNote()" style="border-radius:50px;">Добавить</button>';
+        html += '</div>';
+
+        html += '</div>';
+        modalBody.innerHTML = html;
+    }
+
+    function renderNoteCard(note) {
+        const isPhoto = note.type === 'photo';
+        const typeLabel = isPhoto ? '📸 Фото' : '📝 Текст';
+        const typeClass = isPhoto ? 'note-type-photo' : 'note-type-text';
+        const date = new Date(note.created_at).toLocaleDateString('ru-RU', {day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});
+
+        let html = '<div class="note-card" id="note-' + note.id + '">';
+        html += '<div class="note-actions">';
+        html += '<button class="btn btn-outline-secondary btn-sm" onclick="editNoteInPlace(' + note.id + ')" title="Редактировать">✎</button>';
+        html += '<button class="btn btn-outline-danger btn-sm" onclick="deleteNote(' + note.id + ')" title="Удалить">×</button>';
+        html += '</div>';
+        html += '<div class="note-type-badge ' + typeClass + '">' + typeLabel + '</div>';
+        html += '<div class="note-date">' + date + '</div>';
+
+        if (isPhoto) {
+            html += '<div class="note-photo">';
+            if (note.note && note.note.match(/\.(jpg|jpeg|png|gif|webp)/i)) {
+                html += '<img src="' + escapeHtml(note.note) + '" alt="Фото" loading="lazy">';
+            } else {
+                html += '<a href="' + escapeHtml(note.note) + '" target="_blank" rel="noopener">' + escapeHtml(note.note) + '</a>';
+            }
+            html += '</div>';
+        } else {
+            html += '<div class="note-text">' + escapeHtml(note.note).replace(/\n/g, '<br>') + '</div>';
+        }
+
+        html += '</div>';
+        return html;
+    }
+
+    function editNoteInPlace(noteId) {
+        const card = document.getElementById('note-' + noteId);
+        if (!card) return;
+
+        const textEl = card.querySelector('.note-text') || card.querySelector('.note-photo');
+        if (!textEl) return;
+
+        const currentText = textEl.textContent.trim();
+        const isPhoto = card.querySelector('.note-type-photo') !== null;
+
+        card.dataset.originalHtml = card.innerHTML;
+
+        const actionsEl = card.querySelector('.note-actions');
+        if (actionsEl) actionsEl.style.opacity = '1';
+
+        const editHtml = '<div style="margin-top:0.5rem;">'
+            + '<textarea class="note-edit-area" id="editNoteArea-' + noteId + '">' + escapeHtml(currentText) + '</textarea>'
+            + '<div style="margin-top:0.5rem;display:flex;gap:0.5rem;">'
+            + '<button class="btn btn-success btn-sm" onclick="saveNote(' + noteId + ')" style="border-radius:50px;">Сохранить</button>'
+            + '<button class="btn btn-outline-secondary btn-sm" onclick="cancelEditNote(' + noteId + ')" style="border-radius:50px;">Отмена</button>'
+            + '</div></div>';
+
+        if (isPhoto) {
+            textEl.outerHTML = editHtml;
+        } else {
+            textEl.outerHTML = editHtml;
+        }
+    }
+
+    function cancelEditNote(noteId) {
+        const card = document.getElementById('note-' + noteId);
+        if (!card || !card.dataset.originalHtml) return;
+        card.innerHTML = card.dataset.originalHtml;
+        delete card.dataset.originalHtml;
+    }
+
+    function saveNote(noteId) {
+        const textarea = document.getElementById('editNoteArea-' + noteId);
+        if (!textarea) return;
+
+        const newText = textarea.value.trim();
+        if (!newText) return;
+
+        const card = document.getElementById('note-' + noteId);
+        const isPhoto = card.querySelector('.note-type-photo') !== null || card.querySelector('.note-type-badge.note-type-photo') !== null;
+
+        fetch('/api/baking_notes/' + noteId + '/update/', {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ note: newText })
+        })
+            .then(r => {
+                if (!r.ok) return r.json().then(e => { throw new Error(e.error || 'Ошибка сохранения'); });
+                return r.json();
+            })
+            .then(data => {
+                const updatedNote = {
+                    id: data.id,
+                    note: data.note,
+                    type: data.type,
+                    created_at: data.created_at,
+                };
+                const card = document.getElementById('note-' + noteId);
+                if (card) {
+                    card.outerHTML = renderNoteCard(updatedNote);
+                }
+            })
+            .catch(err => {
+                alert('Ошибка: ' + err.message);
+            });
+    }
+
+    function createNote() {
+        const textEl = document.getElementById('newNoteText');
+        if (!textEl) return;
+
+        const text = textEl.value.trim();
+        if (!text) {
+            textEl.focus();
+            return;
+        }
+
+        fetch('/api/baking_notes/', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                baking_session_id: currentSessionId,
+                type: 'text',
+                note: text,
+            })
+        })
+            .then(r => {
+                if (!r.ok) return r.json().then(e => { throw new Error(e.error || 'Ошибка создания'); });
+                return r.json();
+            })
+            .then(data => {
+                textEl.value = '';
+                openSessionDetail(currentSessionId);
+            })
+            .catch(err => {
+                alert('Ошибка: ' + err.message);
+            });
+    }
+
+    async function deleteNote(noteId) {
+        const ok = await showConfirm('Удалить заметку?', 'Это действие нельзя отменить.');
+        if (!ok) return;
+
+        fetch('/api/baking_notes/' + noteId + '/delete/', {
+            method: 'DELETE',
+        })
+            .then(r => {
+                if (!r.ok) throw new Error('Ошибка удаления');
+                openSessionDetail(currentSessionId);
+            })
+            .catch(err => {
+                alert('Ошибка: ' + err.message);
+            });
+    }
+
+    async function deleteSessionFromModal() {
+        const ok = await showConfirm('Удалить сессию?', 'Будут удалены также все её заметки.');
+        if (!ok) return;
+
+        fetch('/api/baking_sessions/' + currentSessionId + '/delete/', {
+            method: 'DELETE',
+        })
+            .then(r => {
+                if (!r.ok) throw new Error('Ошибка удаления');
+                backToSessionsList();
+            })
+            .catch(err => {
+                alert('Ошибка: ' + err.message);
+            });
+    }
+
+    function toggleSessionStatus() {
+        const newStatus = currentSessionStatus === 'finished' ? 'unfinished' : 'finished';
+
+        fetch('/api/baking_sessions/' + currentSessionId + '/update/', {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ status: newStatus })
+        })
+            .then(r => {
+                if (!r.ok) return r.json().then(e => { throw new Error(e.error || 'Ошибка обновления'); });
+                return r.json();
+            })
+            .then(data => {
+                currentSessionStatus = data.status;
+                const cached = sessionsCache.find(x => x.id === currentSessionId);
+                if (cached) cached.status = data.status;
+                updateStatusBtn();
+                openSessionDetail(currentSessionId);
+            })
+            .catch(err => {
+                alert('Ошибка: ' + err.message);
+            });
+    }
+
+    function updateStatusBtn() {
+        const btn = document.getElementById('sessionStatusBtn');
+        if (!btn) return;
+        btn.textContent = currentSessionStatus === 'finished' ? 'Возобновить' : 'Завершить';
+    }
+
+    function createSession() {
+        fetch('/api/baking_sessions/', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                external_id: externalId,
+                recipe_id: currentRecipeId,
+            })
+        })
+            .then(r => {
+                if (!r.ok) return r.json().then(e => { throw new Error(e.error || 'Ошибка создания'); });
+                return r.json();
+            })
+            .then(data => {
+                openSessionDetail(data.id);
+            })
+            .catch(err => {
+                alert('Ошибка: ' + err.message);
+            });
+    }
+
+    function showSpinnerInModal() {
+        modalBody.innerHTML = '<div class="spinner-container"><div class="spinner"></div></div>';
+    }
+
+    /* ── Confirm dialog ── */
+
+    const confirmModalEl = document.getElementById('confirmModal');
+    const confirmModal = new bootstrap.Modal(confirmModalEl);
+    const confirmTitle = document.getElementById('confirmModalTitle');
+    const confirmMessage = document.getElementById('confirmModalMessage');
+    const confirmOkBtn = document.getElementById('confirmOkBtn');
+    const confirmCancelBtn = document.getElementById('confirmCancelBtn');
+
+    function showConfirm(title, message, okLabel) {
+        return new Promise((resolve) => {
+            confirmTitle.textContent = title;
+            confirmMessage.textContent = message;
+            confirmOkBtn.textContent = okLabel || 'Удалить';
+
+            function onOk() {
+                cleanup();
+                resolve(true);
+            }
+            function onCancel() {
+                cleanup();
+                resolve(false);
+            }
+            function cleanup() {
+                confirmOkBtn.removeEventListener('click', onOk);
+                confirmCancelBtn.removeEventListener('click', onCancel);
+                confirmModal.hide();
+            }
+
+            confirmOkBtn.addEventListener('click', onOk);
+            confirmCancelBtn.addEventListener('click', onCancel);
+            confirmModal.show();
+        });
     }
 </script>
 {% endblock %}

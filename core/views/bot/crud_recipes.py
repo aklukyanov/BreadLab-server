@@ -1,14 +1,10 @@
 import json
 from django.core.paginator import Paginator
-from django.db.models import F
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from core.models import User, Recipe
 from core.serializers import RecipeSerializer
 from logger import crud_recipes_logger
-
-
-
 
 @csrf_exempt
 def create_recipe(request):

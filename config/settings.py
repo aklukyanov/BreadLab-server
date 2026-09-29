@@ -1,3 +1,4 @@
+import json
 """
 Django settings for config project.
 
@@ -25,7 +26,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = django_secret_key
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ.get('DEBUG', 'True')
+DEBUG=os.environ.get('DEBUG', 'True') # По умолчанию True, в проде отключить!
 
 ALLOWED_HOSTS = json.loads(os.getenv('ALLOWED_HOSTS', '["localhost"]'))
 
@@ -138,4 +139,5 @@ STATICFILES_DIRS = [
     BASE_DIR / 'static',
 ]
 
-OLLAMA_MODEL=os.environ.get('OLLAMA_MODEL')
+OLLAMA_MODEL=os.environ.get('OLLAMA_MODEL', 'gemma4')
+DATA_UPLOAD_MAX_MEMORY_SIZE = None

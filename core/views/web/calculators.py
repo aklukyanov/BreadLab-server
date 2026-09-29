@@ -48,6 +48,12 @@ def multiply_view(request):
 
         recipe = Recipe.objects.get(id=recipe_id, user=user_data)
         recipe_data = recipe.recipe.get('data', recipe.recipe)
+
+        # Сохраняем исходные количества для колонки «Было»
+        for group in recipe_data['groups']:
+            for ing in group['ingredients']:
+                ing['original_amount'] = ing.get('amount', ing.get('quantity'))
+
         multiplied = get_multiplication_result(multiplier, recipe_data)
 
         result = {
